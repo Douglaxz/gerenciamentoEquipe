@@ -12,7 +12,6 @@
  -> Bootstrap
 
  # TODO
-
 (X) Tela de cadastro do usuário
 (X) Tela de listagem do usuário
 ( ) Tela de visualização do usuário

@@ -1,11 +1,12 @@
+# importação de dependencias
 from flask import Flask, render_template, request, redirect, session, flash, url_for
-#from sqlalchemy import create_engine, select, MetaData, Table
 from flask_sqlalchemy import SQLAlchemy
 
-
+# definição de chave
 app = Flask(__name__)
 app.secret_key = 'itcio'
 
+# conexão com o banco de dados mysql
 app.config['SQLALCHEMY_DATABASE_URI'] = \
     '{SGBD}://{usuario}:{senha}@{servidor}/{database}'.format(
         SGBD ='mysql+mysqlconnector',
@@ -16,6 +17,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = \
 
 db = SQLAlchemy(app)
 
+# criação da classe usuário conectada com o banco de dados mysql
 class usuarios(db.Model):
     cod_usuario = db.Column(db.Integer, primary_key=True, autoincrement=True)
     nome_usuario = db.Column(db.String(50), nullable=False)
@@ -26,11 +28,13 @@ class usuarios(db.Model):
     def __repr__(self):
         return '<Name %r>' % self.name
 
+# rota index para mostrar os usuários
 @app.route('/')
 def index():
     lista = usuarios.query.order_by(usuarios.cod_usuario)
     return render_template('index.html', titulo='Usuários' , usuarios=lista)
 
+# rota para criar novo formulário usuário 
 @app.route('/novo')
 def novo():
     if session['usuario_logado'] == None:
@@ -38,6 +42,7 @@ def novo():
         return redirect(url_for('login',proxima=url_for('novo')))
     return render_template('novo.html', titulo='Novo Jogo')
 
+# rota para criar novo usuário no banco de dados
 @app.route('/criar', methods=['POST',])
 def criar():
     nome  = request.form['nome']
@@ -60,11 +65,13 @@ def criar():
 
     #return redirect(url_for('index'))
 
+# rota para a tela de login
 @app.route('/login')
 def login():
     proxima = request.args.get('proxima')
     return render_template('login.html', proxima=proxima)
 
+# rota para autendicar a tela de login
 @app.route('/autenticar', methods = ['GET', 'POST'])
 def autenticar():
     usuario = usuarios.query.filter_by(login_usuario=request.form['usuario']).first()
@@ -84,11 +91,12 @@ def autenticar():
         return redirect(url_for('login'))
 
 
-
+# rota logout
 @app.route('/logout', methods = ['GET', 'POST'])
 def logout():
     session['usuario_logado'] = None
     flash('logout efetuado com sucesso')
     return redirect(url_for('login'))
 
+# debug
 app.run(debug=True)
