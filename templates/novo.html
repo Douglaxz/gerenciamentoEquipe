@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Jogoteca</title>
+</head>
+<body>
+    <div class="container">
+      <div class="page-header">
+          <h1>{{ titulo }}</h1>
+      </div>
+      <form method="post" action="/criar">
+        <fieldset>
+          <div class="form-group">
+            <label for="nome">Nome</label>
+            <input type="text" id="nome" name="nome" class="form-control">
+          </div>
+          <div class="form-group">
+            <label for="categoria">Categoria</label>
+            <input type="text" id="categoria" name="categoria" class="form-control">
+          </div>
+          <div class="form-group">
+            <label for="console">Console</label>
+            <input type="text" id="console" name="console" class="form-control">
+          </div>
+          <button type="submit" class="btn btn-primary btn-salvar">Salvar</button>
+        </fieldset>
+      </form>
+    </div>
+</body>
+</html>
