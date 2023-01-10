@@ -1,15 +1,5 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Jogoteca</title>
-</head>
-<body>
-    <div class="container">
-      <div class="page-header">
-          <h1>{{ titulo }}</h1>
-      </div>
+{% extends "template.html"%}
+{% block conteudo %}
       <form method="post" action="/criar">
         <fieldset>
           <div class="form-group">
@@ -27,6 +17,4 @@
           <button type="submit" class="btn btn-primary btn-salvar">Salvar</button>
         </fieldset>
       </form>
-    </div>
-</body>
-</html>
+{% endblock%}
