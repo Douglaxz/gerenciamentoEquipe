@@ -1,15 +1,19 @@
 {% extends "template.html"%}
 {% block conteudo %}
+<br>
+<div class="container w-100 p-3 bg-dark">
+    <div class="row">
+      <div class="col-lg text-left text-white font-weight-bold">
+        {{ titulo }} 
+      </div>
+      <div class="col-md text-right" >
+        {{form.salvar(class="btn btn-primary")}}
+        <a class="btn btn-danger" href="{{url_for('usuario')}}">Voltar</a>
+      </div>
+    </div>
+  </div>
+  <br>
       <form method="post" action="{{ url_for('criar') }}" enctype="multipart/form-data">
-        <figure>
-          <img class="img-fluid" src="{{url_for('imagem',nome_arquivo='semfoto.png')}}">
-          <figcaption class="img-thumbnail col-md-4">
-            <label class="fileContainer">
-              Mudar foto
-              <input type="file" name="arquivo" accept=".jpg" class="form-control"> 
-            </label>
-          </figcaption>
-        </figure>
         <fieldset>
           {{form.csrf_token()}}
           <div class="form-group">
@@ -28,11 +32,6 @@
             {{form.login.label(class="form-label")}}
             {{form.login(class="form-control")}}
           </div>          
-          <div>
-            {{form.salvar(class="btn btn-primary")}}
-            <a class="btn btn-danger" href="{{url_for('index')}}">Voltar</a>
-          </div>
-          
         </fieldset>
       </form>
 {% endblock%}

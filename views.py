@@ -43,7 +43,7 @@ def editar(id):
     form.login.data = usuario.login_usuario
 
     foto_usuario = recupera_imagem(id)
-    return render_template('editar.html', titulo='Editando Usuário', id=id, foto_usuario=foto_usuario, form=form)    
+    return render_template('editar.html', titulo='Editar Usuário', id=id, foto_usuario=foto_usuario, form=form)    
 
 # rota para criar novo usuário no banco de dados
 @app.route('/criar', methods=['POST',])
