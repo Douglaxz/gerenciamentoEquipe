@@ -5,11 +5,21 @@ from models import usuarios
 from helpers import recupera_imagem,deleta_arquivos, FormularioUsuario
 import time
 
+#---------------------------------------------------------------------------------------------------------------------------------
+#usuarios
+#---------------------------------------------------------------------------------------------------------------------------------
+
 # rota index para mostrar os usuários
 @app.route('/')
 def index():
-    lista = usuarios.query.order_by(usuarios.cod_usuario)
-    return render_template('index.html', titulo='Usuários' , usuarios=lista)
+    return render_template('index.html', titulo='Bem vindos')
+
+# rota index para mostrar os usuários
+@app.route('/usuario')
+def usuario():
+    lista1 = usuarios.query.order_by(usuarios.cod_usuario)
+    return render_template('usuarios.html', titulo='Usuários' , usuarios=lista1)
+
 
 # rota para criar novo formulário usuário 
 @app.route('/novo')

@@ -1,0 +1,31 @@
+{% extends "template.html"%}
+{% block conteudo %}
+<a class="btn btn-primary" href="{{url_for('login')}}">Login</a>
+<a class="btn btn-danger" href="{{url_for('logout')}}">Logout</a>
+<a class="btn btn-primary" href="{{url_for('novo')}}">Novo</a>
+        <table class="table table-striped table-responsive table-bordered">
+            <thead class="thead-default">
+                <tr>
+                    <th>Cod</th>
+                    <th>Usuário</th>
+                    <th>Senha</th>
+                    <th>Editar</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for usuario in usuarios %}
+                <tr>
+                    <td>{{ usuario.cod_usuario }}</td>
+                    <td>{{ usuario.nome_usuario }}</td>
+                    <td>{{ usuario.senha_usuario }}</td>
+                    <td>
+                        <a href="{{url_for('editar',id=usuario.cod_usuario)}}">Editar</a>
+                        <a href="{{url_for('deletar',id=usuario.cod_usuario)}}">Deletar</a>
+                    </td>
+
+
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+{% endblock%}

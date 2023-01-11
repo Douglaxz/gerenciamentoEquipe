@@ -1,7 +1,5 @@
 {% extends "template.html"%}
 {% block conteudo %}
-
-
       <form method="post" action="{{ url_for('criar') }}" enctype="multipart/form-data">
         <figure>
           <img class="img-fluid" src="{{url_for('imagem',nome_arquivo='semfoto.png')}}">

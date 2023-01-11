@@ -13,6 +13,7 @@
         <fieldset>
             {{foto_usuario}}
             <input type="hidden" name="id" id="id" value="{{id}}">
+            {{form.csrf_token()}}
             <div class="form-group">
                 {{form.nome.label(class="form-label")}}
                 {{form.nome(class="form-control")}}
