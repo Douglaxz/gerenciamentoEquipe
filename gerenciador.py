@@ -62,8 +62,7 @@ def criar():
     db.session.add(novoUsuario)
     db.session.commit()
 
-
-    #return redirect(url_for('index'))
+    return redirect(url_for('index'))
 
 # rota para a tela de login
 @app.route('/login')
