@@ -1,8 +1,9 @@
 # importação de dependencias
-from flask import Flask, render_template, request, redirect, session, flash, url_for
-from flask_sqlalchemy import SQLAlchemy
+from flask import Flask, render_template, request, redirect, session, flash, url_for, send_from_directory
+#from flask_sqlalchemy import SQLAlchemy
 from gerenciador import app, db
 from models import usuarios
+from helpers import recupera_imagem
 
 # rota index para mostrar os usuários
 @app.route('/')
@@ -24,7 +25,8 @@ def editar(id):
     if session['usuario_logado'] == None:
         return redirect(url_for('login',proxima=url_for('editar')))
     usuario = usuarios.query.filter_by(cod_usuario=id).first()
-    return render_template('editar.html', titulo='Editando Usuário', usuario=usuario)    
+    foto_usuario = recupera_imagem(id)
+    return render_template('editar.html', titulo='Editando Usuário', usuario=usuario, foto_usuario=foto_usuario)    
 
 # rota para criar novo usuário no banco de dados
 @app.route('/criar', methods=['POST',])
@@ -50,33 +52,28 @@ def criar():
 # rota para editar novo usuário no banco de dados
 @app.route('/atualizar', methods=['POST',])
 def atualizar():
-    
     usuario = usuarios.query.filter_by(cod_usuario=request.form['id']).first()
-
-    
     usuario.nome_usuario = request.form['nome']
     usuario.senha_usuario = request.form['senha']
     usuario.status_usuario = request.form['status']
     usuario.login_usuario = request.form['login']
-
     db.session.add(usuario)
     db.session.commit()
+
+    arquivo = request.files['arquivo']
+    uploads_path = app.config['UPLOAD_PATH']
+    arquivo.save(f'{uploads_path}/foto{usuario.cod_usuario}.jpg')
 
     return redirect(url_for('index'))
 
 @app.route('/deletar/<int:id>')
 def deletar(id):
-
     if session['usuario_logado'] == None:
         return redirect(url_for('login'))    
-    
-    
     usuarios.query.filter_by(cod_usuario=id).delete()
     db.session.commit()
     flash('Usuario apagado com sucesso!')
-
     return redirect(url_for('index'))    
-
 
 # rota para a tela de login
 @app.route('/login')
@@ -110,3 +107,7 @@ def logout():
     session['usuario_logado'] = None
     flash('logout efetuado com sucesso')
     return redirect(url_for('login'))
+
+@app.route('/uploads/<nome_arquivo>')
+def imagem(nome_arquivo):
+    return send_from_directory('uploads',nome_arquivo)

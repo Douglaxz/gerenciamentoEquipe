@@ -1,6 +1,16 @@
 {% extends "template.html"%}
 {% block conteudo %}
-      <form method="post" action="{{ url_for('atualizar') }}">
+      <form method="post" action="{{ url_for('atualizar') }}" enctype="multipart/form-data">
+        <figure>
+            <img class="img-fluid" src="{{url_for('imagem',nome_arquivo=foto_usuario)}}">
+            <figcaption class="img-thumbnail col-md-4">
+              <label class="fileContainer">
+                Mudar foto
+                <input type="file" name="arquivo" accept=".jpg" class="form-control"> 
+              </label>
+            </figcaption>
+          </figure>        
+          {{foto_usuario}}
         <fieldset>
             <input type="hidden" name="id" id="id" value="{{usuario.cod_usuario}}">
           <div class="form-group">
