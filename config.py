@@ -1,4 +1,5 @@
-from flask_sqlalchemy import SQLAlchemy
+#from flask_sqlalchemy import SQLAlchemy
+import os
 
 SECRET_KEY = 'itcio'
 
@@ -12,3 +13,5 @@ SQLALCHEMY_DATABASE_URI = \
         servidor ='localhost',
         database ='db_gerenciador')
 
+
+UPLOAD_PATH = os.path.dirname(os.path.abspath(__file__)) + '/uploads'

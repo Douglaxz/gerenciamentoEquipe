@@ -40,6 +40,11 @@ def criar():
     novoUsuario = usuarios(nome_usuario=nome, senha_usuario=senha, status_usuario=status, login_usuario=login )
     db.session.add(novoUsuario)
     db.session.commit()
+
+    arquivo = request.files['arquivo']
+    uploads_path = app.config['UPLOAD_PATH']
+    arquivo.save(f'{uploads_path}/foto{novoUsuario.cod_usuario}.jpg')
+
     return redirect(url_for('index'))
 
 # rota para editar novo usuário no banco de dados
