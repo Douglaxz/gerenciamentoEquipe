@@ -1,9 +1,9 @@
 # importação de dependencias
 from flask import Flask, render_template, request, redirect, session, flash, url_for, send_from_directory
-#from flask_sqlalchemy import SQLAlchemy
 from gerenciador import app, db
 from models import usuarios
-from helpers import recupera_imagem
+from helpers import recupera_imagem,deleta_arquivos, FormularioUsuario
+import time
 
 # rota index para mostrar os usuários
 @app.route('/')
@@ -17,7 +17,8 @@ def novo():
     if session['usuario_logado'] == None:
         #return redirect('/login?proxima=novo')
         return redirect(url_for('login',proxima=url_for('novo')))
-    return render_template('novo.html', titulo='Novo Jogo')
+    form = FormularioUsuario()
+    return render_template('novo.html', titulo='Novo Usuário', form=form)
 
 # rota para criar novo formulário usuário 
 @app.route('/editar/<int:id>')
@@ -25,16 +26,28 @@ def editar(id):
     if session['usuario_logado'] == None:
         return redirect(url_for('login',proxima=url_for('editar')))
     usuario = usuarios.query.filter_by(cod_usuario=id).first()
+    form = FormularioUsuario()
+    form.nome.data = usuario.nome_usuario
+    form.senha.data = usuario.senha_usuario
+    form.status.data = usuario.status_usuario
+    form.login.data = usuario.login_usuario
+
     foto_usuario = recupera_imagem(id)
-    return render_template('editar.html', titulo='Editando Usuário', usuario=usuario, foto_usuario=foto_usuario)    
+    return render_template('editar.html', titulo='Editando Usuário', id=id, foto_usuario=foto_usuario, form=form)    
 
 # rota para criar novo usuário no banco de dados
 @app.route('/criar', methods=['POST',])
 def criar():
-    nome  = request.form['nome']
-    senha = request.form['senha']
-    status = request.form['status']
-    login = request.form['login']
+    form = FormularioUsuario(request.form)
+
+    if not form.validate_on_submit():
+        return redirect(url_for('novo'))
+
+    nome  = form.nome.data
+    senha = form.senha.data
+    status = form.status.data
+    login = form.login.data
+
     usuario = usuarios.query.filter_by(nome_usuario=nome).first()
     if usuario:
         flash ('Usuário já existe')
@@ -45,24 +58,32 @@ def criar():
 
     arquivo = request.files['arquivo']
     uploads_path = app.config['UPLOAD_PATH']
-    arquivo.save(f'{uploads_path}/foto{novoUsuario.cod_usuario}.jpg')
+    timestamp = time.time
+    deleta_arquivos(usuario.cod_usuario)
+    arquivo.save(f'{uploads_path}/foto{usuario.cod_usuario}-{timestamp}.jpg')
 
     return redirect(url_for('index'))
 
 # rota para editar novo usuário no banco de dados
 @app.route('/atualizar', methods=['POST',])
 def atualizar():
-    usuario = usuarios.query.filter_by(cod_usuario=request.form['id']).first()
-    usuario.nome_usuario = request.form['nome']
-    usuario.senha_usuario = request.form['senha']
-    usuario.status_usuario = request.form['status']
-    usuario.login_usuario = request.form['login']
-    db.session.add(usuario)
-    db.session.commit()
+    form = FormularioUsuario(request.form)
 
-    arquivo = request.files['arquivo']
-    uploads_path = app.config['UPLOAD_PATH']
-    arquivo.save(f'{uploads_path}/foto{usuario.cod_usuario}.jpg')
+    if form.validate_on_submit():
+        usuario = usuarios.query.filter_by(cod_usuario=request.form['id']).first()
+        usuario.nome_usuario = form.nome.data
+        usuario.senha_usuario = form.senha.data
+        usuario.status_usuario = form.status.data
+        usuario.login_usuario = form.login.data
+
+        db.session.add(usuario)
+        db.session.commit()
+
+        arquivo = request.files['arquivo']
+        uploads_path = app.config['UPLOAD_PATH']
+        timestamp = time.time()
+        deleta_arquivos(usuario.cod_usuario)
+        arquivo.save(f'{uploads_path}/foto{usuario.cod_usuario}-{timestamp}.jpg')
 
     return redirect(url_for('index'))
 
