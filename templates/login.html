@@ -23,27 +23,20 @@
   
   <div class="container1">
     
-    <div class="box1">
-      <div class="container box1">
-        <br>
-        <div class="container w-100 p-3 bg-dark">
-            <div class="row">
-              <div class="col-lg text-left text-white font-weight-bold">
-                Login
-              </div>
-            </div>
-          </div>
-          <br>          
-        {% with messages = get_flashed_messages() %}
-        {% if messages %}
-        <ul id="messages" class="list-unstyled">
-          {% for message in messages %}
-          <li class="alert alert-success">{{ message }}</li>
-          {% endfor %}
-        </ul>
-        {% endif %}
-        {% endwith %}
+        
         <form method="POST" action="{{url_for('autenticar')}}">
+          <div class="box1">
+            <div class="container box1">
+              <br>
+              <div class="container w-100 p-3 bg-dark">
+                  <div class="row">
+                    <div class="col-lg text-left text-white font-weight-bold">
+                      Login
+                    </div>
+                    
+                  </div>
+                </div>
+                <br>            
           <input type="hidden" name="proxima" value="{{ proxima }}">
           <p><label>Usuário:</label> <input class="form-control" type="text" name="usuario" required></p>
           <p><label>Senha:</label> <input class="form-control" type="password" name="senha" required></p>

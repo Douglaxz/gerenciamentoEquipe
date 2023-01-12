@@ -1,18 +1,51 @@
 # importação de dependencias
 from flask import Flask, render_template, request, redirect, session, flash, url_for, send_from_directory
 from gerenciador import app, db
-from models import usuarios
+from models import usuarios, tb_tipousuario
 from helpers import recupera_imagem,deleta_arquivos, FormularioUsuario, FormularioUsuarioVisualizar
 import time
+
+# rota index
+@app.route('/')
+def index():
+    return render_template('index.html', titulo='Bem vindos')
+
+# rota logout
+@app.route('/logout', methods = ['GET', 'POST'])
+def logout():
+    session['usuario_logado'] = None
+    flash('logout efetuado com sucesso')
+    return redirect(url_for('login'))
+
+# rota para a tela de login
+@app.route('/login')
+def login():
+    proxima = request.args.get('proxima')
+    return render_template('login.html', proxima=proxima)
+
+# rota para autendicar a tela de login
+@app.route('/autenticar', methods = ['GET', 'POST'])
+def autenticar():
+    usuario = usuarios.query.filter_by(login_usuario=request.form['usuario']).first()
+    if usuario:
+        if request.form['senha'] == usuario.senha_usuario:
+            session['usuario_logado'] = usuario.login_usuario
+            flash(usuario.nome_usuario + ' Usuário logado com sucesso')
+            proximaPagina = request.form['proxima']
+            if proximaPagina == "None":
+                proximaPagina = ''
+            return redirect('/{}'.format(proximaPagina))
+        else:
+            flash('Usuário não logado com sucesso')
+            return redirect(url_for('login'))
+    else:
+        flash('Usuário não logado com sucesso')
+        return redirect(url_for('login'))
+
 
 #---------------------------------------------------------------------------------------------------------------------------------
 #usuarios
 #---------------------------------------------------------------------------------------------------------------------------------
-
-# rota index para mostrar os usuários
-@app.route('/')
-def index():
-    return render_template('index.html', titulo='Bem vindos')
 
 # rota index para mostrar os usuários
 @app.route('/usuario')
@@ -43,7 +76,7 @@ def visualizarUsuario(id):
     form.login.data = usuario.login_usuario
     return render_template('visualizarUsuario.html', titulo='Visualizar Usuário', id=id, form=form)   
 
-# rota para criar novo formulário usuário 
+# rota para editar formulário usuário 
 @app.route('/editarUsuario/<int:id>')
 def editarUsuario(id):
     if session['usuario_logado'] == None:
@@ -57,7 +90,7 @@ def editarUsuario(id):
     return render_template('editarUsuario.html', titulo='Editar Usuário', id=id, form=form)    
        
 
-# rota para criar novo usuário no banco de dados
+# rota para criar usuário no banco de dados
 @app.route('/criar', methods=['POST',])
 def criar():
     form = FormularioUsuario(request.form)
@@ -86,12 +119,13 @@ def criar():
 
     return redirect(url_for('usuario'))
 
-# rota para editar novo usuário no banco de dados
-@app.route('/atualizar', methods=['POST',])
+# rota para atualizar usuário no banco de dados
+@app.route('/atualizarUsuario', methods=['POST',])
 def atualizarUsuario():
     form = FormularioUsuario(request.form)
 
     if form.validate_on_submit():
+        id = request.form['id']
         usuario = usuarios.query.filter_by(cod_usuario=request.form['id']).first()
         usuario.nome_usuario = form.nome.data
         usuario.senha_usuario = form.senha.data
@@ -107,50 +141,34 @@ def atualizarUsuario():
         #deleta_arquivos(usuario.cod_usuario)
         #arquivo.save(f'{uploads_path}/foto{usuario.cod_usuario}-{timestamp}.jpg')
 
-    return redirect(url_for('usuario'))
 
-@app.route('/deletar/<int:id>')
-def deletar(id):
+    return redirect(url_for('visualizarUsuario', id=id))
+
+# rota para deletar usuário no banco de dados
+@app.route('/deletarUsuario/<int:id>')
+def deletarUsuario(id):
     if session['usuario_logado'] == None:
         return redirect(url_for('login'))    
     usuarios.query.filter_by(cod_usuario=id).delete()
     db.session.commit()
     flash('Usuario apagado com sucesso!')
-    return redirect(url_for('index'))    
+    return redirect(url_for('usuario'))    
 
-# rota para a tela de login
-@app.route('/login')
-def login():
-    proxima = request.args.get('proxima')
-    return render_template('login.html', proxima=proxima)
-
-# rota para autendicar a tela de login
-@app.route('/autenticar', methods = ['GET', 'POST'])
-def autenticar():
-    usuario = usuarios.query.filter_by(login_usuario=request.form['usuario']).first()
-    if usuario:
-        if request.form['senha'] == usuario.senha_usuario:
-            session['usuario_logado'] = usuario.login_usuario
-            flash(usuario.nome_usuario + ' Usuário logado com sucesso')
-            proximaPagina = request.form['proxima']
-            if proximaPagina == "None":
-                proximaPagina = ''
-            return redirect('/{}'.format(proximaPagina))
-        else:
-            flash('Usuário não logado com sucesso')
-            return redirect(url_for('login'))
-    else:
-        flash('Usuário não logado com sucesso')
-        return redirect(url_for('login'))
-
-
-# rota logout
-@app.route('/logout', methods = ['GET', 'POST'])
-def logout():
-    session['usuario_logado'] = None
-    flash('logout efetuado com sucesso')
-    return redirect(url_for('login'))
 
 @app.route('/uploads/<nome_arquivo>')
 def imagem(nome_arquivo):
     return send_from_directory('uploads',nome_arquivo)
+
+#---------------------------------------------------------------------------------------------------------------------------------
+#tipo usuarios
+#---------------------------------------------------------------------------------------------------------------------------------
+
+# rota index para mostrar os tipo usuários
+@app.route('/tipousuario')
+def tipousuario():
+    lista = tb_tipousuario.query.order_by(tb_tipousuario.cod_tipousuario)
+    return render_template('tipousuarios.html', titulo='Tipo Usuários', lista=lista)
+
+
+
+
