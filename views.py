@@ -58,8 +58,8 @@ def usuario():
 @app.route('/novoUsuario')
 def novoUsuario():
     if session['usuario_logado'] == None:
-        #return redirect('/login?proxima=novo')
         return redirect(url_for('login',proxima=url_for('novoUsuario')))
+
     form = FormularioUsuario()
     return render_template('novoUsuario.html', titulo='Novo Usuário', form=form)
 
@@ -74,6 +74,7 @@ def visualizarUsuario(id):
     form.senha.data = usuario.senha_usuario
     form.status.data = usuario.status_usuario
     form.login.data = usuario.login_usuario
+    
     return render_template('visualizarUsuario.html', titulo='Visualizar Usuário', id=id, form=form)   
 
 # rota para editar formulário usuário 
@@ -102,12 +103,15 @@ def criar():
     senha = form.senha.data
     status = form.status.data
     login = form.login.data
+    tipousuario = form.tipousuario.data
 
     usuario = usuarios.query.filter_by(nome_usuario=nome).first()
     if usuario:
         flash ('Usuário já existe')
         return redirect(url_for('index')) 
-    novoUsuario = usuarios(nome_usuario=nome, senha_usuario=senha, status_usuario=status, login_usuario=login )
+    #novoUsuario = usuarios(nome_usuario=nome, senha_usuario=senha, status_usuario=status, login_usuario=login )
+    novoUsuario = usuarios(nome_usuario=nome, senha_usuario=senha, status_usuario=status, login_usuario=login, cod_tipousuario=tipousuario)
+    
     db.session.add(novoUsuario)
     db.session.commit()
 
