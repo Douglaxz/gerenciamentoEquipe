@@ -12,11 +12,10 @@ from wtforms import StringField, validators, SubmitField,IntegerField, SelectFie
 #criação via wftorm do formulario de usuarios
 class FormularioUsuario(FlaskForm):
     nome = StringField('Nome', [validators.DataRequired(), validators.Length(min=1, max=50)])
-    senha = StringField('Nome', [validators.DataRequired(), validators.Length(min=1, max=50)])
-    #status = IntegerField('Situação', [validators.NumberRange(min=0, max=10)])
-    status = SelectField('Situação', choices=[(0,"Ativo"),(1,"Inativo")])
+    senha = StringField('Senha', [validators.DataRequired(), validators.Length(min=1, max=50)])
+    status = SelectField('Situação', coerce=int, choices=[(0,"Ativo"),(1,"Inativo")])
     login = StringField('Login', [validators.DataRequired(), validators.Length(min=1, max=50)])    
-    tipousuario = SelectField('Situação', choices=[(g.cod_tipousuario, g.desc_tipousuario) for g in tb_tipousuario.query.order_by('desc_tipousuario')])
+    tipousuario = SelectField('Situação', coerce=int,  choices=[(g.cod_tipousuario, g.desc_tipousuario) for g in tb_tipousuario.query.order_by('desc_tipousuario')])
     salvar = SubmitField('Salvar')
 
 
@@ -24,8 +23,9 @@ class FormularioUsuario(FlaskForm):
 class FormularioUsuarioVisualizar(FlaskForm):
     nome = StringField('Nome', [validators.DataRequired(), validators.Length(min=1, max=50)],render_kw={'readonly': True})
     senha = StringField('Senha', [validators.DataRequired(), validators.Length(min=1, max=50)], render_kw={'readonly': True})
-    status = IntegerField('status', [validators.DataRequired(), validators.Length(min=1, max=50)])
+    status = SelectField('Situação', coerce=int, choices=[(0,"Ativo"),(1,"Inativo")], render_kw={'readonly': True})
     login = StringField('Login', [validators.DataRequired(), validators.Length(min=1, max=50)], render_kw={'readonly': True})
+    tipousuario = SelectField('Tipo', coerce=int, choices=[(g.cod_tipousuario, g.desc_tipousuario) for g in tb_tipousuario.query.order_by('desc_tipousuario')], render_kw={'readonly': True})
     salvar = SubmitField('Editar')    
 
 #------------------------------------------------------------------------------------------------------------------------------

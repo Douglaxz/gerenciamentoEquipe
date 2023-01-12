@@ -74,6 +74,7 @@ def visualizarUsuario(id):
     form.senha.data = usuario.senha_usuario
     form.status.data = usuario.status_usuario
     form.login.data = usuario.login_usuario
+    form.tipousuario.data = usuario.cod_tipousuario
     
     return render_template('visualizarUsuario.html', titulo='Visualizar Usuário', id=id, form=form)   
 
@@ -109,7 +110,6 @@ def criar():
     if usuario:
         flash ('Usuário já existe')
         return redirect(url_for('index')) 
-    #novoUsuario = usuarios(nome_usuario=nome, senha_usuario=senha, status_usuario=status, login_usuario=login )
     novoUsuario = usuarios(nome_usuario=nome, senha_usuario=senha, status_usuario=status, login_usuario=login, cod_tipousuario=tipousuario)
     
     db.session.add(novoUsuario)
@@ -127,7 +127,6 @@ def criar():
 @app.route('/atualizarUsuario', methods=['POST',])
 def atualizarUsuario():
     form = FormularioUsuario(request.form)
-
     if form.validate_on_submit():
         id = request.form['id']
         usuario = usuarios.query.filter_by(cod_usuario=request.form['id']).first()
@@ -135,17 +134,10 @@ def atualizarUsuario():
         usuario.senha_usuario = form.senha.data
         usuario.status_usuario = form.status.data
         usuario.login_usuario = form.login.data
-
+        usuario.cod_tipousuario = form.tipousuario.data
+        
         db.session.add(usuario)
         db.session.commit()
-
-        #arquivo = request.files['arquivo']
-        #uploads_path = app.config['UPLOAD_PATH']
-        #timestamp = time.time()
-        #deleta_arquivos(usuario.cod_usuario)
-        #arquivo.save(f'{uploads_path}/foto{usuario.cod_usuario}-{timestamp}.jpg')
-
-
     return redirect(url_for('visualizarUsuario', id=id))
 
 # rota para deletar usuário no banco de dados
