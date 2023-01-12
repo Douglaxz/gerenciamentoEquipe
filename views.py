@@ -2,7 +2,7 @@
 from flask import Flask, render_template, request, redirect, session, flash, url_for, send_from_directory
 from gerenciador import app, db
 from models import usuarios
-from helpers import recupera_imagem,deleta_arquivos, FormularioUsuario
+from helpers import recupera_imagem,deleta_arquivos, FormularioUsuario, FormularioUsuarioVisualizar
 import time
 
 #---------------------------------------------------------------------------------------------------------------------------------
@@ -22,19 +22,33 @@ def usuario():
 
 
 # rota para criar novo formulário usuário 
-@app.route('/novo')
-def novo():
+@app.route('/novoUsuario')
+def novoUsuario():
     if session['usuario_logado'] == None:
         #return redirect('/login?proxima=novo')
-        return redirect(url_for('login',proxima=url_for('novo')))
+        return redirect(url_for('login',proxima=url_for('novoUsuario')))
     form = FormularioUsuario()
-    return render_template('novo.html', titulo='Novo Usuário', form=form)
+    return render_template('novoUsuario.html', titulo='Novo Usuário', form=form)
+
+# rota para visualizar usuário 
+@app.route('/visualizarUsuario/<int:id>')
+def visualizarUsuario(id):
+    if session['usuario_logado'] == None:
+        return redirect(url_for('login',proxima=url_for('visualizarUsuario')))
+    usuario = usuarios.query.filter_by(cod_usuario=id).first()
+    form = FormularioUsuarioVisualizar()
+    form.nome.data = usuario.nome_usuario
+    form.senha.data = usuario.senha_usuario
+    form.status.data = usuario.status_usuario
+    form.login.data = usuario.login_usuario
+
+    return render_template('editarUsuario.html', titulo='Visualizar Usuário', id=id, form=form)  
 
 # rota para criar novo formulário usuário 
-@app.route('/editar/<int:id>')
-def editar(id):
+@app.route('/editarUsuario/<int:id>')
+def editarUsuario(id):
     if session['usuario_logado'] == None:
-        return redirect(url_for('login',proxima=url_for('editar')))
+        return redirect(url_for('login',proxima=url_for('editarUsuario')))
     usuario = usuarios.query.filter_by(cod_usuario=id).first()
     form = FormularioUsuario()
     form.nome.data = usuario.nome_usuario
@@ -42,8 +56,7 @@ def editar(id):
     form.status.data = usuario.status_usuario
     form.login.data = usuario.login_usuario
 
-    foto_usuario = recupera_imagem(id)
-    return render_template('editar.html', titulo='Editar Usuário', id=id, foto_usuario=foto_usuario, form=form)    
+    return render_template('editarUsuario.html', titulo='Editar Usuário', id=id, form=form)    
 
 # rota para criar novo usuário no banco de dados
 @app.route('/criar', methods=['POST',])
@@ -66,13 +79,13 @@ def criar():
     db.session.add(novoUsuario)
     db.session.commit()
 
-    arquivo = request.files['arquivo']
-    uploads_path = app.config['UPLOAD_PATH']
-    timestamp = time.time
-    deleta_arquivos(usuario.cod_usuario)
-    arquivo.save(f'{uploads_path}/foto{usuario.cod_usuario}-{timestamp}.jpg')
+    #arquivo = request.files['arquivo']
+    #uploads_path = app.config['UPLOAD_PATH']
+    #timestamp = time.time
+    #deleta_arquivos(usuario.cod_usuario)
+    #arquivo.save(f'{uploads_path}/foto{usuario.cod_usuario}-{timestamp}.jpg')
 
-    return redirect(url_for('index'))
+    return redirect(url_for('usuario'))
 
 # rota para editar novo usuário no banco de dados
 @app.route('/atualizar', methods=['POST',])
@@ -89,13 +102,13 @@ def atualizar():
         db.session.add(usuario)
         db.session.commit()
 
-        arquivo = request.files['arquivo']
-        uploads_path = app.config['UPLOAD_PATH']
-        timestamp = time.time()
-        deleta_arquivos(usuario.cod_usuario)
-        arquivo.save(f'{uploads_path}/foto{usuario.cod_usuario}-{timestamp}.jpg')
+        #arquivo = request.files['arquivo']
+        #uploads_path = app.config['UPLOAD_PATH']
+        #timestamp = time.time()
+        #deleta_arquivos(usuario.cod_usuario)
+        #arquivo.save(f'{uploads_path}/foto{usuario.cod_usuario}-{timestamp}.jpg')
 
-    return redirect(url_for('index'))
+    return redirect(url_for('usuario'))
 
 @app.route('/deletar/<int:id>')
 def deletar(id):
