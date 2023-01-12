@@ -1,8 +1,8 @@
 # importação de dependencias
 from flask import Flask, render_template, request, redirect, session, flash, url_for, send_from_directory
 from gerenciador import app, db
-from models import usuarios, tb_tipousuario
-from helpers import recupera_imagem,deleta_arquivos, FormularioUsuario, FormularioUsuarioVisualizar, FormularioTipoUsuarioEdicao,FormularioTipoUsuarioVisualizar
+from models import tb_usuarios, tb_tipousuario, tb_beneficios
+from helpers import recupera_imagem,deleta_arquivos, FormularioUsuario, FormularioUsuarioVisualizar, FormularioTipoUsuarioEdicao,FormularioTipoUsuarioVisualizar, FormularioBeneficiosEdicao, FormularioBeneficiosVisualizar
 import time
 
 # rota index
@@ -26,7 +26,7 @@ def login():
 # rota para autendicar a tela de login
 @app.route('/autenticar', methods = ['GET', 'POST'])
 def autenticar():
-    usuario = usuarios.query.filter_by(login_usuario=request.form['usuario']).first()
+    usuario = tb_usuarios.query.filter_by(login_usuario=request.form['usuario']).first()
     if usuario:
         if request.form['senha'] == usuario.senha_usuario:
             session['usuario_logado'] = usuario.login_usuario
@@ -50,7 +50,7 @@ def autenticar():
 # rota index para mostrar os usuários
 @app.route('/usuario')
 def usuario():
-    lista1 = usuarios.query.order_by(usuarios.cod_usuario)
+    lista1 = tb_usuarios.query.order_by(tb_usuarios.cod_usuario)
     return render_template('usuarios.html', titulo='Usuários' , usuarios=lista1)
 
 
@@ -68,7 +68,7 @@ def novoUsuario():
 def visualizarUsuario(id):
     if session['usuario_logado'] == None:
         return redirect(url_for('login',proxima=url_for('visualizarUsuario')))
-    usuario = usuarios.query.filter_by(cod_usuario=id).first()
+    usuario = tb_usuarios.query.filter_by(cod_usuario=id).first()
     form = FormularioUsuarioVisualizar()
     form.nome.data = usuario.nome_usuario
     form.senha.data = usuario.senha_usuario
@@ -83,7 +83,7 @@ def visualizarUsuario(id):
 def editarUsuario(id):
     if session['usuario_logado'] == None:
         return redirect(url_for('login',proxima=url_for('visualizarUsuario')))
-    usuario = usuarios.query.filter_by(cod_usuario=id).first()
+    usuario = tb_usuarios.query.filter_by(cod_usuario=id).first()
     form = FormularioUsuario()
     form.nome.data = usuario.nome_usuario
     form.senha.data = usuario.senha_usuario
@@ -106,11 +106,11 @@ def criar():
     login = form.login.data
     tipousuario = form.tipousuario.data
 
-    usuario = usuarios.query.filter_by(nome_usuario=nome).first()
+    usuario = tb_usuarios.query.filter_by(nome_usuario=nome).first()
     if usuario:
         flash ('Usuário já existe')
         return redirect(url_for('index')) 
-    novoUsuario = usuarios(nome_usuario=nome, senha_usuario=senha, status_usuario=status, login_usuario=login, cod_tipousuario=tipousuario)
+    novoUsuario = tb_usuarios(nome_usuario=nome, senha_usuario=senha, status_usuario=status, login_usuario=login, cod_tipousuario=tipousuario)
     
     db.session.add(novoUsuario)
     db.session.commit()
@@ -129,7 +129,7 @@ def atualizarUsuario():
     form = FormularioUsuario(request.form)
     if form.validate_on_submit():
         id = request.form['id']
-        usuario = usuarios.query.filter_by(cod_usuario=request.form['id']).first()
+        usuario = tb_usuarios.query.filter_by(cod_usuario=request.form['id']).first()
         usuario.nome_usuario = form.nome.data
         usuario.senha_usuario = form.senha.data
         usuario.status_usuario = form.status.data
@@ -145,7 +145,7 @@ def atualizarUsuario():
 def deletarUsuario(id):
     if session['usuario_logado'] == None:
         return redirect(url_for('login'))    
-    usuarios.query.filter_by(cod_usuario=id).delete()
+    tb_usuarios.query.filter_by(cod_usuario=id).delete()
     db.session.commit()
     flash('Usuario apagado com sucesso!')
     return redirect(url_for('usuario'))    
@@ -191,13 +191,6 @@ def criarTipoUsuario():
     novoTipoUsuario = tb_tipousuario(desc_tipousuario=desc, status_tipousuario=status)
     db.session.add(novoTipoUsuario)
     db.session.commit()
-
-    #arquivo = request.files['arquivo']
-    #uploads_path = app.config['UPLOAD_PATH']
-    #timestamp = time.time
-    #deleta_arquivos(usuario.cod_usuario)
-    #arquivo.save(f'{uploads_path}/foto{usuario.cod_usuario}-{timestamp}.jpg')
-
     return redirect(url_for('tipousuario'))
 
 # rota para visualizar tipo usuário 
@@ -248,3 +241,93 @@ def deletarTipoUsuario(id):
     db.session.commit()
     flash('Tipo Usuario apagado com sucesso!')
     return redirect(url_for('tipousuario'))    
+
+#---------------------------------------------------------------------------------------------------------------------------------
+#beneficios
+#---------------------------------------------------------------------------------------------------------------------------------
+# rota index para mostrar os beneficios
+@app.route('/beneficio')
+def beneficio():
+    lista = tb_beneficios.query.order_by(tb_beneficios.cod_beneficio)
+    return render_template('beneficios.html', titulo='Beneficios', lista=lista)
+
+
+# rota para criar novo formulário usuário 
+@app.route('/novoBeneficio')
+def novoBeneficio():
+    if session['usuario_logado'] == None:
+        return redirect(url_for('login',proxima=url_for('novoBeneficio')))
+    form = FormularioBeneficiosEdicao()
+    return render_template('novoBeneficio.html', titulo='Novo Beneficio', form=form)
+
+# rota para criar beneficio no banco de dados
+@app.route('/criarBeneficio', methods=['POST',])
+def criarBeneficio():
+    form = FormularioBeneficiosEdicao(request.form)
+
+    if not form.validate_on_submit():
+        return redirect(url_for('novoBeneficio'))
+
+    desc  = form.descricao.data
+    status = form.status.data
+
+    beneficio = tb_beneficios.query.filter_by(desc_beneficio=desc).first()
+    if beneficio:
+        flash ('Beneficio já existe')
+        return redirect(url_for('beneficios')) 
+    novoBeneficio= tb_beneficios(desc_beneficio=desc, status_beneficio=status)
+    db.session.add(novoBeneficio)
+    db.session.commit()
+    return redirect(url_for('beneficio'))   
+
+# rota para visualizar beneficios 
+@app.route('/visualizarBeneficio/<int:id>')
+def visualizarBeneficio(id):
+    if session['usuario_logado'] == None:
+        return redirect(url_for('login',proxima=url_for('visualizarBeneficios')))
+    beneficio = tb_beneficios.query.filter_by(cod_beneficio=id).first()
+    form = FormularioBeneficiosVisualizar()
+    form.descricao.data = beneficio.desc_beneficio
+    form.status.data = beneficio.status_beneficio
+    return render_template('visualizarBeneficio.html', titulo='Visualizar Beneficio', id=id, form=form)  
+
+# rota para editar formulário beneficio
+@app.route('/editarBeneficio/<int:id>')
+def editarBeneficio(id):
+    if session['usuario_logado'] == None:
+        return redirect(url_for('login',proxima=url_for('visualizarBeneficio')))
+    beneficio = tb_beneficios.query.filter_by(cod_beneficio=id).first()
+    form = FormularioBeneficiosEdicao()
+    form.descricao.data = beneficio.desc_beneficio
+    form.status.data = beneficio.status_beneficio
+    return render_template('editarBeneficio.html', titulo='Editar Beneficio', id=id, form=form)   
+
+# rota para atualizar usuário no banco de dados
+@app.route('/atualizarBeneficio', methods=['POST',])
+def atualizarBeneficio():
+    form = FormularioBeneficiosEdicao(request.form)
+
+    
+    if form.validate_on_submit():
+        id = request.form['id']
+        beneficio = tb_beneficios.query.filter_by(cod_beneficio=request.form['id']).first()
+        beneficio.desc_beneficio = form.descricao.data
+        beneficio.status_beneficio = form.status.data
+
+        db.session.add(beneficio)
+        db.session.commit()
+
+    return redirect(url_for('visualizarBeneficio', id=id))    
+
+# rota para deletar usuário no banco de dados
+@app.route('/deletarBeneficio/<int:id>')
+def deletarBeneficio(id):
+    if session['usuario_logado'] == None:
+        return redirect(url_for('login'))    
+    tb_beneficios.query.filter_by(cod_beneficio=id).delete()
+    db.session.commit()
+    flash('Beneficio apagado com sucesso!')
+    return redirect(url_for('beneficio'))  
+#---------------------------------------------------------------------------------------------------------------------------------
+#áreas
+#---------------------------------------------------------------------------------------------------------------------------------

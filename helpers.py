@@ -1,7 +1,7 @@
 #importações
 import os
 from gerenciador import app, db
-from models import usuarios, tb_tipousuario
+from models import tb_usuarios, tb_tipousuario
 from flask_wtf import FlaskForm
 from wtforms import StringField, validators, SubmitField,IntegerField, SelectField
 
@@ -29,7 +29,7 @@ class FormularioUsuarioVisualizar(FlaskForm):
     salvar = SubmitField('Editar')    
 
 #------------------------------------------------------------------------------------------------------------------------------
-# USUÁRIO
+#TIPO USUÁRIO
 #------------------------------------------------------------------------------------------------------------------------------
 
 #criação via wftorm do formulario de tipo usuarios
@@ -43,6 +43,23 @@ class FormularioTipoUsuarioVisualizar(FlaskForm):
     descricao = StringField('Descrição', [validators.DataRequired(), validators.Length(min=1, max=50)], render_kw={'readonly': True})
     status = SelectField('Situação', coerce=int, choices=[(0, 'Ativo'),(1, 'Inativo')], render_kw={'readonly': True})
     salvar = SubmitField('Salvar')    
+
+#------------------------------------------------------------------------------------------------------------------------------
+#BENEFICIOS
+#------------------------------------------------------------------------------------------------------------------------------
+
+#criação via wftorm do formulario de beneficios
+class FormularioBeneficiosEdicao(FlaskForm):
+    descricao = StringField('Descrição', [validators.DataRequired(), validators.Length(min=1, max=50)])
+    status = SelectField('Situação', coerce=int, choices=[(0, 'Ativo'),(1, 'Inativo')])
+    salvar = SubmitField('Salvar')    
+
+#criação via wftorm do formulario de beneficios
+class FormularioBeneficiosVisualizar(FlaskForm):
+    descricao = StringField('Descrição', [validators.DataRequired(), validators.Length(min=1, max=50)], render_kw={'readonly': True})
+    status = SelectField('Situação', coerce=int, choices=[(0, 'Ativo'),(1, 'Inativo')], render_kw={'readonly': True})
+    salvar = SubmitField('Salvar')    
+
 
 #------------------------------------------------------------------------------------------------------------------------------
 # OUTROS
