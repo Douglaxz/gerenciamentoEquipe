@@ -1,8 +1,8 @@
 # importação de dependencias
 from flask import Flask, render_template, request, redirect, session, flash, url_for, send_from_directory
 from gerenciador import app, db
-from models import tb_usuarios, tb_tipousuario, tb_beneficios
-from helpers import recupera_imagem,deleta_arquivos, FormularioUsuario, FormularioUsuarioVisualizar, FormularioTipoUsuarioEdicao,FormularioTipoUsuarioVisualizar, FormularioBeneficiosEdicao, FormularioBeneficiosVisualizar
+from models import tb_usuarios, tb_tipousuario, tb_beneficios, tb_areas
+from helpers import recupera_imagem,deleta_arquivos, FormularioUsuario, FormularioUsuarioVisualizar, FormularioTipoUsuarioEdicao,FormularioTipoUsuarioVisualizar, FormularioBeneficiosEdicao, FormularioBeneficiosVisualizar, FormularioAreaEdicao, FormularioAreaVisualizar
 import time
 
 # rota index
@@ -302,7 +302,7 @@ def editarBeneficio(id):
     form.status.data = beneficio.status_beneficio
     return render_template('editarBeneficio.html', titulo='Editar Beneficio', id=id, form=form)   
 
-# rota para atualizar usuário no banco de dados
+# rota para atualizar beneficio no banco de dados
 @app.route('/atualizarBeneficio', methods=['POST',])
 def atualizarBeneficio():
     form = FormularioBeneficiosEdicao(request.form)
@@ -319,7 +319,7 @@ def atualizarBeneficio():
 
     return redirect(url_for('visualizarBeneficio', id=id))    
 
-# rota para deletar usuário no banco de dados
+# rota para deletar beneficio no banco de dados
 @app.route('/deletarBeneficio/<int:id>')
 def deletarBeneficio(id):
     if session['usuario_logado'] == None:
@@ -331,3 +331,86 @@ def deletarBeneficio(id):
 #---------------------------------------------------------------------------------------------------------------------------------
 #áreas
 #---------------------------------------------------------------------------------------------------------------------------------
+# rota index para mostrar os area
+@app.route('/area')
+def area():
+    lista = tb_areas.query.order_by(tb_areas.cod_area)
+    return render_template('areas.html', titulo='Áreas', lista=lista)
+
+
+# rota para criar novo formulário area 
+@app.route('/novoArea')
+def novoArea():
+    if session['usuario_logado'] == None:
+        return redirect(url_for('login',proxima=url_for('novoArea')))
+    form = FormularioAreaEdicao()
+    return render_template('novoArea.html', titulo='Novo Area', form=form)
+
+# rota para criar area no banco de dados
+@app.route('/criarArea', methods=['POST',])
+def criarArea():
+    form = FormularioAreaEdicao(request.form)
+
+    if not form.validate_on_submit():
+        return redirect(url_for('novoArea'))
+
+    desc  = form.descricao.data
+    status = form.status.data
+
+    area = tb_areas.query.filter_by(desc_area=desc).first()
+    if area:
+        flash ('Área já existe')
+        return redirect(url_for('areas')) 
+    novoArea= tb_areas(desc_area=desc, status_area=status)
+    db.session.add(novoArea)
+    db.session.commit()
+    return redirect(url_for('area'))   
+
+# rota para visualizar area 
+@app.route('/visualizarArea/<int:id>')
+def visualizarArea(id):
+    if session['usuario_logado'] == None:
+        return redirect(url_for('login',proxima=url_for('visualizarArea')))
+    area = tb_areas.query.filter_by(cod_area=id).first()
+    form = FormularioAreaVisualizar()
+    form.descricao.data = area.desc_area
+    form.status.data = area.status_area
+    return render_template('visualizarArea.html', titulo='Visualizar Área', id=id, form=form)  
+
+# rota para editar formulário area
+@app.route('/editarArea/<int:id>')
+def editarArea(id):
+    if session['usuario_logado'] == None:
+        return redirect(url_for('login',proxima=url_for('visualizarArea')))
+    area = tb_areas.query.filter_by(cod_area=id).first()
+    form = FormularioAreaEdicao()
+    form.descricao.data = area.desc_area
+    form.status.data = area.status_area
+    return render_template('editarArea.html', titulo='Editar Area', id=id, form=form)   
+
+# rota para atualizar area no banco de dados
+@app.route('/atualizarArea', methods=['POST',])
+def atualizarArea():
+    form = FormularioAreaEdicao(request.form)
+
+    
+    if form.validate_on_submit():
+        id = request.form['id']
+        area = tb_areas.query.filter_by(cod_area=request.form['id']).first()
+        area.desc_area = form.descricao.data
+        area.status_area = form.status.data
+
+        db.session.add(area)
+        db.session.commit()
+
+    return redirect(url_for('visualizarArea', id=id))    
+
+# rota para deletar area no banco de dados
+@app.route('/deletarArea/<int:id>')
+def deletarArea(id):
+    if session['usuario_logado'] == None:
+        return redirect(url_for('login'))    
+    tb_areas.query.filter_by(cod_area=id).delete()
+    db.session.commit()
+    flash('Área apagado com sucesso!')
+    return redirect(url_for('area')) 

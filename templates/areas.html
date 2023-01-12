@@ -1,0 +1,41 @@
+{% extends "template.html"%}
+{% block conteudo %}
+<br>
+<div class="container w-100 p-3 bg-dark">
+    <div class="row">
+      <div class="col-lg text-left text-white font-weight-bold">
+        {{ titulo }} 
+      </div>
+      <div class="col-md text-right" >
+        <a class="btn btn-success" href="{{url_for('novoArea')}}">Novo</a>
+      </div>
+    </div>
+  </div>
+  <br>
+<table class="table table-striped table-responsiv">
+    <thead class="bg-dark text-white">
+        <tr>
+            <th class="text-left col-md-8">Tipo</th>
+            <th class="text-left col-md-2">Status</th>
+            <th class="text-left col-md-2">Ações</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for itens in lista %}
+        <tr>
+            <td class="text-left">{{ itens.desc_area }}</td>
+            <td class="text-left">
+              {% if itens.status_area == 0: %}
+                <p class="text-success">Ativo</p>
+              {% else %}
+                <p class="text-danger">Inativo</p>
+              {% endif %}                       
+            <td>
+              <a class="btn btn-primary" href="{{url_for('visualizarArea',id=itens.cod_area)}}">Visualizar</a>
+          </td>              
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% endblock%}

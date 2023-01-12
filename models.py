@@ -29,7 +29,7 @@ class tb_beneficios(db.Model):
         return '<Name %r>' % self.name        
 
 # criação da classe usuário conectada com o banco de dados mysql
-class tb_area(db.Model):
+class tb_areas(db.Model):
     cod_area = db.Column(db.Integer, primary_key=True, autoincrement=True)
     desc_area = db.Column(db.String(50), nullable=False)
     status_area = db.Column(db.Integer, nullable=False)
