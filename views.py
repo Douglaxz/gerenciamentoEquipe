@@ -41,22 +41,21 @@ def visualizarUsuario(id):
     form.senha.data = usuario.senha_usuario
     form.status.data = usuario.status_usuario
     form.login.data = usuario.login_usuario
-
-    return render_template('editarUsuario.html', titulo='Visualizar Usuário', id=id, form=form)  
+    return render_template('visualizarUsuario.html', titulo='Visualizar Usuário', id=id, form=form)   
 
 # rota para criar novo formulário usuário 
 @app.route('/editarUsuario/<int:id>')
 def editarUsuario(id):
     if session['usuario_logado'] == None:
-        return redirect(url_for('login',proxima=url_for('editarUsuario')))
+        return redirect(url_for('login',proxima=url_for('visualizarUsuario')))
     usuario = usuarios.query.filter_by(cod_usuario=id).first()
     form = FormularioUsuario()
     form.nome.data = usuario.nome_usuario
     form.senha.data = usuario.senha_usuario
     form.status.data = usuario.status_usuario
     form.login.data = usuario.login_usuario
-
     return render_template('editarUsuario.html', titulo='Editar Usuário', id=id, form=form)    
+       
 
 # rota para criar novo usuário no banco de dados
 @app.route('/criar', methods=['POST',])
@@ -89,7 +88,7 @@ def criar():
 
 # rota para editar novo usuário no banco de dados
 @app.route('/atualizar', methods=['POST',])
-def atualizar():
+def atualizarUsuario():
     form = FormularioUsuario(request.form)
 
     if form.validate_on_submit():

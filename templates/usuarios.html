@@ -7,7 +7,7 @@
         {{ titulo }} 
       </div>
       <div class="col-md text-right" >
-        <a class="btn btn-primary" href="{{url_for('novoUsuario')}}">Novo</a>
+        <a class="btn btn-success" href="{{url_for('novoUsuario')}}">Novo</a>
       </div>
     </div>
   </div>
@@ -32,12 +32,6 @@
             <td>
               <a class="btn btn-primary" href="{{url_for('visualizarUsuario',id=usuario.cod_usuario)}}">Visualizar</a>
           </td>              
-            <td>
-                <a class="btn btn-primary" href="{{url_for('editarUsuario',id=usuario.cod_usuario)}}">Editar</a>
-            </td>            
-            <td>
-                <a class="btn btn-danger" href="{{url_for('deletar',id=usuario.cod_usuario)}}">Deletar</a>
-            </td>
         </tr>
         {% endfor %}
     </tbody>

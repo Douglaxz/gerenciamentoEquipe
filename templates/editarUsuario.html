@@ -1,6 +1,6 @@
 {% extends "template.html"%}
 {% block conteudo %}
-<form method="post" action="{{ url_for('atualizar') }}" enctype="multipart/form-data">
+<form method="post" action="{{ url_for('atualizarUsuario') }}" enctype="multipart/form-data">
   <br>
   <div class="container w-100 p-3 bg-dark">
     <div class="row">
@@ -9,7 +9,7 @@
       </div>
       <div class="col-md text-right">
         {{form.salvar(class="btn btn-primary")}}
-        <a class="btn btn-danger" href="{{url_for('usuario')}}">Voltar</a>
+        <a class="btn btn-danger" href="{{url_for('visualizarUsuario',id=id)}}") >Voltar</a>
       </div>
     </div>
   </div>

@@ -18,7 +18,7 @@ class FormularioUsuarioVisualizar(FlaskForm):
     senha = StringField('Senha', [validators.DataRequired(), validators.Length(min=1, max=50)], render_kw={'readonly': True})
     status = StringField('Status', [validators.DataRequired(), validators.Length(min=1, max=50)], render_kw={'readonly': True})
     login = StringField('Login', [validators.DataRequired(), validators.Length(min=1, max=50)], render_kw={'readonly': True})
-    salvar = SubmitField('Salvar')    
+    salvar = SubmitField('Editar')    
 
 #classe de upload de imagem (desativada no momento)
 def recupera_imagem(id):
