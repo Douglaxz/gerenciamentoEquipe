@@ -7,7 +7,7 @@
         {{ titulo }} 
       </div>
       <div class="col-md text-right" >
-        <a class="btn btn-success" href="{{url_for('novoUsuario')}}">Novo</a>
+        <a class="btn btn-success" href="{{url_for('novoTipoUsuario')}}">Novo</a>
       </div>
     </div>
   </div>
@@ -26,13 +26,12 @@
             <td class="text-left">{{ itens.desc_tipousuario }}</td>
             <td class="text-left">
               {% if itens.status_tipousuario == 0: %}
-                <p> Ativo</p>
+                <p class="text-success">Ativo</p>
               {% else %}
-                <p> inAtivo</p>
+                <p class="text-danger">Inativo</p>
               {% endif %}                       
-
             <td>
-              <a class="btn btn-primary" href="{{url_for('visualizarUsuario',id=itens.cod_tipousuario)}}">Visualizar</a>
+              <a class="btn btn-primary" href="{{url_for('visualizarTipoUsuario',id=itens.cod_tipousuario)}}">Visualizar</a>
           </td>              
         </tr>
         {% endfor %}

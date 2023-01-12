@@ -17,6 +17,7 @@ class tb_tipousuario(db.Model):
     desc_tipousuario = db.Column(db.String(50), nullable=False)
     status_tipousuario = db.Column(db.Integer, nullable=False)
 
+
     def __repr__(self):
         return '<Name %r>' % self.name        
 

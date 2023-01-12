@@ -2,7 +2,7 @@
 from flask import Flask, render_template, request, redirect, session, flash, url_for, send_from_directory
 from gerenciador import app, db
 from models import usuarios, tb_tipousuario
-from helpers import recupera_imagem,deleta_arquivos, FormularioUsuario, FormularioUsuarioVisualizar
+from helpers import recupera_imagem,deleta_arquivos, FormularioUsuario, FormularioUsuarioVisualizar, FormularioTipoUsuarioEdicao,FormularioTipoUsuarioVisualizar
 import time
 
 # rota index
@@ -169,6 +169,86 @@ def tipousuario():
     lista = tb_tipousuario.query.order_by(tb_tipousuario.cod_tipousuario)
     return render_template('tipousuarios.html', titulo='Tipo Usuários', lista=lista)
 
+# rota para criar novo formulário usuário 
+@app.route('/novoTipoUsuario')
+def novoTipoUsuario():
+    if session['usuario_logado'] == None:
+        return redirect(url_for('login',proxima=url_for('novoTipoUsuario')))
+    form = FormularioTipoUsuarioEdicao()
+    return render_template('novoTipoUsuario.html', titulo='Novo Tipo Usuário', form=form)
+
+# rota para criar tipo usuário no banco de dados
+@app.route('/criarTipoUsuario', methods=['POST',])
+def criarTipoUsuario():
+    form = FormularioTipoUsuarioEdicao(request.form)
+
+    if not form.validate_on_submit():
+        return redirect(url_for('novo'))
+
+    desc  = form.descricao.data
+    status = form.status.data
+
+    tipousuario = tb_tipousuario.query.filter_by(desc_tipousuario=desc).first()
+    if tipousuario:
+        flash ('Tipo Usuário já existe')
+        return redirect(url_for('tipousuario')) 
+    novoTipoUsuario = tb_tipousuario(desc_tipousuario=desc, status_tipousuario=status)
+    db.session.add(novoTipoUsuario)
+    db.session.commit()
+
+    #arquivo = request.files['arquivo']
+    #uploads_path = app.config['UPLOAD_PATH']
+    #timestamp = time.time
+    #deleta_arquivos(usuario.cod_usuario)
+    #arquivo.save(f'{uploads_path}/foto{usuario.cod_usuario}-{timestamp}.jpg')
+
+    return redirect(url_for('tipousuario'))
+
+# rota para visualizar tipo usuário 
+@app.route('/visualizarTipoUsuario/<int:id>')
+def visualizarTipoUsuario(id):
+    if session['usuario_logado'] == None:
+        return redirect(url_for('login',proxima=url_for('visualizarTipoUsuario')))
+    tipousuario = tb_tipousuario.query.filter_by(cod_tipousuario=id).first()
+    form = FormularioTipoUsuarioVisualizar()
+    form.descricao.data = tipousuario.desc_tipousuario
+    form.status.data = tipousuario.status_tipousuario
+    return render_template('visualizarTipoUsuario.html', titulo='Visualizar Tipo Usuário', id=id, form=form)   
+
+# rota para editar formulário tipo usuário 
+@app.route('/editarTipoUsuario/<int:id>')
+def editarTipoUsuario(id):
+    if session['usuario_logado'] == None:
+        return redirect(url_for('login',proxima=url_for('visualizarTipoUsuario')))
+    tipousuario = tb_tipousuario.query.filter_by(cod_tipousuario=id).first()
+    form = FormularioTipoUsuarioEdicao()
+    form.descricao.data = tipousuario.desc_tipousuario
+    form.status.data = tipousuario.status_tipousuario
+    return render_template('editarTipoUsuario.html', titulo='Editar Tipo Usuário', id=id, form=form)   
+
+# rota para atualizar usuário no banco de dados
+@app.route('/atualizarTipoUsuario', methods=['POST',])
+def atualizarTipoUsuario():
+    form = FormularioTipoUsuarioEdicao(request.form)
+
+    if form.validate_on_submit():
+        id = request.form['id']
+        tipousuario = tb_tipousuario.query.filter_by(cod_tipousuario=request.form['id']).first()
+        tipousuario.desc_tipousuario = form.descricao.data
+        tipousuario.status_tipousuario = form.status.data
+
+        db.session.add(tipousuario)
+        db.session.commit()
 
 
+    return redirect(url_for('visualizarTipoUsuario', id=id))    
 
+# rota para deletar usuário no banco de dados
+@app.route('/deletarTipoUsuario/<int:id>')
+def deletarTipoUsuario(id):
+    if session['usuario_logado'] == None:
+        return redirect(url_for('login'))    
+    tb_tipousuario.query.filter_by(cod_tipousuario=id).delete()
+    db.session.commit()
+    flash('Tipo Usuario apagado com sucesso!')
+    return redirect(url_for('tipousuario'))    
