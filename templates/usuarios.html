@@ -16,7 +16,9 @@
     <thead class="bg-dark text-white">
         <tr>
             <th class="text-left col-md-4">Usuário</th>
-            <th class="text-left col-md-4">Senha</th>
+            <th class="text-left col-md-4">Login</th>
+            <th class="text-left col-md-2">Tipo</th>
+            <th class="text-left col-md-2">Status</th>
             <th class="text-left col-md-4" colspan="2">Ações</th>
         </tr>
     </thead>
@@ -24,7 +26,9 @@
         {% for usuario in usuarios %}
         <tr>
             <td class="text-left">{{ usuario.nome_usuario }}</td>
-            <td class="text-left">{{ usuario.senha_usuario }}</td>
+            <td class="text-left">{{ usuario.login_usuario }}</td>
+            <td class="text-left"></td>
+            <td class="text-left">{{ usuario.status_usuario }}</td>
             <td>
                 <a class="btn btn-primary" href="{{url_for('editar',id=usuario.cod_usuario)}}">Editar</a>
             </td>            
