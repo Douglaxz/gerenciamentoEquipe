@@ -192,8 +192,20 @@ def imagem(nome_arquivo):
 # rota index para mostrar os tipo usuários
 @app.route('/tipousuario')
 def tipousuario():
-    lista = tb_tipousuario.query.order_by(tb_tipousuario.cod_tipousuario)
-    return render_template('tipousuarios.html', titulo='Tipo Usuários', lista=lista)
+    page = request.args.get('page', 1, type=int)
+    form = FormularPesquisa()    
+    tiposusuario = tb_tipousuario.query.order_by(tb_tipousuario.cod_tipousuario)\
+    .paginate(page=page, per_page=5, error_out=False)
+    return render_template('tipousuarios.html', titulo='Tipo Usuários', tiposusuario=tiposusuario, form=form)
+
+@app.route('/tipousuarioPesquisa', methods=['POST',])
+def tipousuarioPesquisa():
+    page = request.args.get('page', 1, type=int)
+    form = FormularPesquisa()
+    tiposusuario = tb_tipousuario.query.order_by(tb_tipousuario.desc_tipousuario)\
+    .filter(tb_tipousuario.desc_tipousuario.ilike(f'%{form.pesquisa.data}%'))\
+    .paginate(page=page, per_page=5, error_out=False)
+    return render_template('tipousuarios.html', titulo='Tipo Usuários' , tiposusuario=tiposusuario, form=form)    
 
 # rota para criar novo formulário usuário 
 @app.route('/novoTipoUsuario')
@@ -444,8 +456,6 @@ def editarArea(id):
 @app.route('/atualizarArea', methods=['POST',])
 def atualizarArea():
     form = FormularioAreaEdicao(request.form)
-
-    
     if form.validate_on_submit():
         id = request.form['id']
         area = tb_areas.query.filter_by(cod_area=request.form['id']).first()
@@ -473,9 +483,20 @@ def deletarArea(id):
 # rota index para mostrar os tipo lancamento
 @app.route('/tipolancamento')
 def tipolancamento():
-    lista = tb_tipolancamento.query.order_by(tb_tipolancamento.desc_tipolancamento)
-    return render_template('tiposlancamento.html', titulo='Tipo Lançamento', lista=lista)
+    page = request.args.get('page', 1, type=int)
+    form = FormularPesquisa()    
+    tiposlancamento = tb_tipolancamento.query.order_by(tb_tipolancamento.desc_tipolancamento)\
+    .paginate(page=page, per_page=5, error_out=False)
+    return render_template('tiposlancamento.html', titulo='Tipo Lançamento', tiposlancamento=tiposlancamento, form=form)
 
+@app.route('/tipolancamentoPesquisa', methods=['POST',])
+def tipolancamentoPesquisa():
+    page = request.args.get('page', 1, type=int)
+    form = FormularPesquisa()
+    tiposlancamento = tb_tipolancamento.query.order_by(tb_tipolancamento.desc_tipolancamento)\
+    .filter(tb_tipolancamento.desc_tipolancamento.ilike(f'%{form.pesquisa.data}%'))\
+    .paginate(page=page, per_page=5, error_out=False)
+    return render_template('tiposlancamento.html', titulo='Tipo Lançamento' , tiposlancamento=tiposlancamento, form=form)
 
 # rota para criar novo formulário tipo lancamento
 @app.route('/novoTipoLancamento')
