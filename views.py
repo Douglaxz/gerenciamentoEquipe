@@ -2,7 +2,7 @@
 from flask import Flask, render_template, request, redirect, session, flash, url_for, send_from_directory
 from gerenciador import app, db
 from models import tb_usuarios, tb_tipousuario, tb_beneficios, tb_areas, tb_tipolancamento, tb_beneficiousuario
-from helpers import recupera_imagem,deleta_arquivos, FormularioBeneficioUsuarioEdicao, FormularPesquisa, FormularioUsuario, FormularioUsuarioVisualizar, FormularioTipoUsuarioEdicao,FormularioTipoUsuarioVisualizar, FormularioBeneficiosEdicao, FormularioBeneficiosVisualizar, FormularioAreaEdicao, FormularioAreaVisualizar, FormularioTipoLancamentoVisualizar, FormularioTipoLancamentoEdicao
+from helpers import recupera_imagem,deleta_arquivos, FormularioBeneficioUsuarioVisualizacao, FormularioBeneficioUsuarioEdicao, FormularPesquisa, FormularioUsuario, FormularioUsuarioVisualizar, FormularioTipoUsuarioEdicao,FormularioTipoUsuarioVisualizar, FormularioBeneficiosEdicao, FormularioBeneficiosVisualizar, FormularioAreaEdicao, FormularioAreaVisualizar, FormularioTipoLancamentoVisualizar, FormularioTipoLancamentoEdicao
 import time
 
 # rota index
@@ -84,7 +84,6 @@ def usuarioPesquisa():
 def novoUsuario():
     if session['usuario_logado'] == None:
         return redirect(url_for('login',proxima=url_for('novoUsuario')))
-
     form = FormularioUsuario()
     return render_template('novoUsuario.html', titulo='Novo Usuário', form=form)
 
@@ -101,8 +100,14 @@ def visualizarUsuario(id):
     form.login.data = usuario.login_usuario
     form.tipousuario.data = usuario.cod_tipousuario
     form.area.data = usuario.cod_area
-    
-    return render_template('visualizarUsuario.html', titulo='Visualizar Usuário', id=id, form=form)   
+
+    form1 = FormularioBeneficioUsuarioVisualizacao()
+    beneficiosusuario = tb_beneficiousuario.query.filter_by(cod_usuario=id)\
+        .join(tb_beneficios, tb_beneficios.cod_beneficio==tb_beneficiousuario.cod_beneficio)\
+        .add_columns(tb_beneficios.desc_beneficio,tb_beneficiousuario.cod_beneficiousuario)\
+
+
+    return render_template('visualizarUsuario.html', titulo='Visualizar Usuário', id=id, form=form, form1=form1, beneficiosusuario=beneficiosusuario)   
 
 # rota para editar formulário usuário 
 @app.route('/editarUsuario/<int:id>')
@@ -117,6 +122,9 @@ def editarUsuario(id):
     form.login.data = usuario.login_usuario
     form.tipousuario.data = usuario.cod_tipousuario
     form.area.data = usuario.cod_area
+
+
+
     return render_template('editarUsuario.html', titulo='Editar Usuário', id=id, form=form)    
        
 
@@ -124,23 +132,19 @@ def editarUsuario(id):
 @app.route('/criar', methods=['POST',])
 def criar():
     form = FormularioUsuario(request.form)
-
     if not form.validate_on_submit():
         return redirect(url_for('novo'))
-
     nome  = form.nome.data
     senha = form.senha.data
     status = form.status.data
     login = form.login.data
     tipousuario = form.tipousuario.data
     area = form.area.data
-
     usuario = tb_usuarios.query.filter_by(nome_usuario=nome).first()
     if usuario:
         flash ('Usuário já existe')
         return redirect(url_for('index')) 
     novoUsuario = tb_usuarios(nome_usuario=nome, senha_usuario=senha, status_usuario=status, login_usuario=login, cod_tipousuario=tipousuario, cod_area=area)
-    
     db.session.add(novoUsuario)
     db.session.commit()
 
@@ -165,7 +169,6 @@ def atualizarUsuario():
         usuario.login_usuario = form.login.data
         usuario.cod_tipousuario = form.tipousuario.data
         usuario.cod_area = form.area.data
-        
         db.session.add(usuario)
         db.session.commit()
     return redirect(url_for('visualizarUsuario', id=id))
@@ -219,13 +222,10 @@ def novoTipoUsuario():
 @app.route('/criarTipoUsuario', methods=['POST',])
 def criarTipoUsuario():
     form = FormularioTipoUsuarioEdicao(request.form)
-
     if not form.validate_on_submit():
-        return redirect(url_for('novo'))
-
+        return redirect(url_for('criarTipoUsuario'))
     desc  = form.descricao.data
     status = form.status.data
-
     tipousuario = tb_tipousuario.query.filter_by(desc_tipousuario=desc).first()
     if tipousuario:
         flash ('Tipo Usuário já existe')
@@ -261,17 +261,13 @@ def editarTipoUsuario(id):
 @app.route('/atualizarTipoUsuario', methods=['POST',])
 def atualizarTipoUsuario():
     form = FormularioTipoUsuarioEdicao(request.form)
-
     if form.validate_on_submit():
         id = request.form['id']
         tipousuario = tb_tipousuario.query.filter_by(cod_tipousuario=request.form['id']).first()
         tipousuario.desc_tipousuario = form.descricao.data
         tipousuario.status_tipousuario = form.status.data
-
         db.session.add(tipousuario)
         db.session.commit()
-
-
     return redirect(url_for('visualizarTipoUsuario', id=id))    
 
 # rota para deletar usuário no banco de dados
@@ -317,13 +313,10 @@ def novoBeneficio():
 @app.route('/criarBeneficio', methods=['POST',])
 def criarBeneficio():
     form = FormularioBeneficiosEdicao(request.form)
-
     if not form.validate_on_submit():
         return redirect(url_for('novoBeneficio'))
-
     desc  = form.descricao.data
     status = form.status.data
-
     beneficio = tb_beneficios.query.filter_by(desc_beneficio=desc).first()
     if beneficio:
         flash ('Beneficio já existe')
@@ -359,17 +352,13 @@ def editarBeneficio(id):
 @app.route('/atualizarBeneficio', methods=['POST',])
 def atualizarBeneficio():
     form = FormularioBeneficiosEdicao(request.form)
-
-    
     if form.validate_on_submit():
         id = request.form['id']
         beneficio = tb_beneficios.query.filter_by(cod_beneficio=request.form['id']).first()
         beneficio.desc_beneficio = form.descricao.data
         beneficio.status_beneficio = form.status.data
-
         db.session.add(beneficio)
         db.session.commit()
-
     return redirect(url_for('visualizarBeneficio', id=id))    
 
 # rota para deletar beneficio no banco de dados
@@ -381,6 +370,7 @@ def deletarBeneficio(id):
     db.session.commit()
     flash('Beneficio apagado com sucesso!')
     return redirect(url_for('beneficio'))  
+
 #---------------------------------------------------------------------------------------------------------------------------------
 #AREAS
 #---------------------------------------------------------------------------------------------------------------------------------
@@ -414,13 +404,10 @@ def novoArea():
 @app.route('/criarArea', methods=['POST',])
 def criarArea():
     form = FormularioAreaEdicao(request.form)
-
     if not form.validate_on_submit():
         return redirect(url_for('novoArea'))
-
     desc  = form.descricao.data
     status = form.status.data
-
     area = tb_areas.query.filter_by(desc_area=desc).first()
     if area:
         flash ('Área já existe')
@@ -461,10 +448,8 @@ def atualizarArea():
         area = tb_areas.query.filter_by(cod_area=request.form['id']).first()
         area.desc_area = form.descricao.data
         area.status_area = form.status.data
-
         db.session.add(area)
         db.session.commit()
-
     return redirect(url_for('visualizarArea', id=id))    
 
 # rota para deletar area no banco de dados
@@ -589,26 +574,29 @@ def novoBeneficioUsuario(id):
     form = FormularioBeneficioUsuarioEdicao()
     return render_template('novoBeneficioUsuario.html', titulo='Novo Beneficio Usuário', form=form, id=id)
 
-# rota para criar usuário no banco de dados
+# rota para criar beneficio usuário no banco de dados
 @app.route('/criarBeneficioUsuario/<int:id>', methods=['POST',])
 def criarBeneficioUsuario(id):
     form = FormularioBeneficioUsuarioEdicao(request.form)
-
     if not form.validate_on_submit():
         return redirect(url_for('novoBeneficioUsuario',id=id))
-
     beneficio  = form.beneficio.data
     usuario = id
-
-
     beneficiousuario = tb_beneficiousuario.query.filter_by(cod_usuario=id, cod_beneficio=beneficio).first()
     if beneficiousuario:
         flash ('Beneficio já cadastrado para esse usuário')
         return redirect(url_for('visualizarUsuario',id=id)) 
     novoBeneficioUsuario = tb_beneficiousuario(cod_usuario=usuario, cod_beneficio=beneficio)
-    
     db.session.add(novoBeneficioUsuario)
     db.session.commit()
+    return redirect(url_for('visualizarUsuario',id=id)) 
 
-
-    return redirect(url_for('visualizarUsuario',id=id))    
+# rota para deletar beneficio usuario no banco de dados
+@app.route('/deletarBeneficioUsuario/<int:id><int:beneficiousuario>')
+def deletarBeneficioUsuario(id,beneficiousuario):
+    if session['usuario_logado'] == None:
+        return redirect(url_for('login'))    
+    tb_beneficiousuario.query.filter_by(cod_beneficiousuario=beneficiousuario).delete()
+    db.session.commit()
+    flash('Beneficio apagado com sucesso!')
+    return redirect(url_for('visualizarUsuario',id=id)) 

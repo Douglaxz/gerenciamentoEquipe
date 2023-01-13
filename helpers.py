@@ -125,3 +125,7 @@ def deleta_arquivos(id):
 class FormularioBeneficioUsuarioEdicao(FlaskForm):
     beneficio = SelectField('Beneficio:', coerce=int,  choices=[(g.cod_beneficio, g.desc_beneficio) for g in tb_beneficios.query.order_by('desc_beneficio')])
     salvar = SubmitField('Salvar')       
+
+class FormularioBeneficioUsuarioVisualizacao(FlaskForm):
+    beneficioUsuario = SelectField('Beneficio:', coerce=int,  choices=[(g.cod_beneficio, g.desc_beneficio) for g in tb_beneficios.query.order_by('desc_beneficio')], render_kw={'readonly': True})
+    salvar = SubmitField('Salvar')       
