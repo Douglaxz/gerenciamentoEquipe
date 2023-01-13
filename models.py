@@ -53,7 +53,14 @@ class tb_beneficiousuario(db.Model):
     cod_beneficiousuario = db.Column(db.Integer, primary_key=True, autoincrement=True)
     cod_usuario = db.Column(db.Integer, nullable=False)
     cod_beneficio = db.Column(db.Integer, nullable=False)
-    
+
+# criação da classe periodoconectada com o banco de dados mysql    
+class tb_periodos(db.Model):
+    cod_periodo = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    desc_periodo = db.Column(db.String(50), nullable=False)
+    status_periodo = db.Column(db.Integer, nullable=False)
+    inicio_periodo = db.Column(db.DateTime, nullable=False)
+    final_periodo = db.Column(db.DateTime, nullable=False)
 
     def __repr__(self):
         return '<Name %r>' % self.name      

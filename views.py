@@ -1,8 +1,8 @@
 # importação de dependencias
 from flask import Flask, render_template, request, redirect, session, flash, url_for, send_from_directory
 from gerenciador import app, db
-from models import tb_usuarios, tb_tipousuario, tb_beneficios, tb_areas, tb_tipolancamento, tb_beneficiousuario
-from helpers import recupera_imagem,deleta_arquivos, FormularioBeneficioUsuarioVisualizacao, FormularioBeneficioUsuarioEdicao, FormularPesquisa, FormularioUsuario, FormularioUsuarioVisualizar, FormularioTipoUsuarioEdicao,FormularioTipoUsuarioVisualizar, FormularioBeneficiosEdicao, FormularioBeneficiosVisualizar, FormularioAreaEdicao, FormularioAreaVisualizar, FormularioTipoLancamentoVisualizar, FormularioTipoLancamentoEdicao
+from models import tb_usuarios, tb_tipousuario, tb_beneficios, tb_areas, tb_tipolancamento, tb_beneficiousuario, tb_periodos
+from helpers import recupera_imagem,deleta_arquivos, FormularioPeriodoEdicao, FormularioPeriodoVisualizar, FormularioBeneficioUsuarioVisualizacao, FormularioBeneficioUsuarioEdicao, FormularPesquisa, FormularioUsuario, FormularioUsuarioVisualizar, FormularioTipoUsuarioEdicao,FormularioTipoUsuarioVisualizar, FormularioBeneficiosEdicao, FormularioBeneficiosVisualizar, FormularioAreaEdicao, FormularioAreaVisualizar, FormularioTipoLancamentoVisualizar, FormularioTipoLancamentoEdicao
 import time
 
 # rota index
@@ -76,7 +76,6 @@ def usuarioPesquisa():
     .paginate(page=page, per_page=5, error_out=False)
     return render_template('usuarios.html', titulo='Usuários' , usuarios=usuarios, form=form)
 
-
 #.filter_by(nome_usuario="%"+form.pesquisa.data+"%")\
 
 # rota para criar novo formulário usuário 
@@ -104,9 +103,7 @@ def visualizarUsuario(id):
     form1 = FormularioBeneficioUsuarioVisualizacao()
     beneficiosusuario = tb_beneficiousuario.query.filter_by(cod_usuario=id)\
         .join(tb_beneficios, tb_beneficios.cod_beneficio==tb_beneficiousuario.cod_beneficio)\
-        .add_columns(tb_beneficios.desc_beneficio,tb_beneficiousuario.cod_beneficiousuario)\
-
-
+        .add_columns(tb_beneficios.desc_beneficio,tb_beneficiousuario.cod_beneficiousuario)
     return render_template('visualizarUsuario.html', titulo='Visualizar Usuário', id=id, form=form, form1=form1, beneficiosusuario=beneficiosusuario)   
 
 # rota para editar formulário usuário 
@@ -122,12 +119,8 @@ def editarUsuario(id):
     form.login.data = usuario.login_usuario
     form.tipousuario.data = usuario.cod_tipousuario
     form.area.data = usuario.cod_area
-
-
-
     return render_template('editarUsuario.html', titulo='Editar Usuário', id=id, form=form)    
        
-
 # rota para criar usuário no banco de dados
 @app.route('/criar', methods=['POST',])
 def criar():
@@ -495,14 +488,11 @@ def novoTipoLancamento():
 @app.route('/criarTipoLancamento', methods=['POST',])
 def criarTipoLancamento():
     form = FormularioTipoLancamentoEdicao(request.form)
-
     if not form.validate_on_submit():
         return redirect(url_for('novoTipoLancamento'))
-
     sigla  = form.sigla.data
     desc  = form.descricao.data
     status = form.status.data
-
     tipolancamento = tb_tipolancamento.query.filter_by(desc_tipolancamento=desc).first()
     if tipolancamento:
         flash ('TipoLancamento já existe')
@@ -600,3 +590,122 @@ def deletarBeneficioUsuario(id,beneficiousuario):
     db.session.commit()
     flash('Beneficio apagado com sucesso!')
     return redirect(url_for('visualizarUsuario',id=id)) 
+
+#---------------------------------------------------------------------------------------------------------------------------------
+#PERÍODO
+#---------------------------------------------------------------------------------------------------------------------------------
+# rota index para mostrar os periodo
+@app.route('/periodo')
+def periodo():
+    page = request.args.get('page', 1, type=int)
+    form = FormularPesquisa()    
+    periodos = tb_periodos.query.order_by(tb_periodos.desc_periodo)\
+    .paginate(page=page, per_page=5, error_out=False)
+    return render_template('periodos.html', titulo='Períodos', periodos=periodos, form=form)
+
+# rota index para mostrar os periodo pesquisa
+@app.route('/periodoPesquisa', methods=['POST',])
+def periodoPesquisa():
+    page = request.args.get('page', 1, type=int)
+    form = FormularPesquisa()
+    periodos = tb_periodos.query.order_by(tb_periodos.desc_periodo)\
+    .filter(tb_periodos.desc_periodo.ilike(f'%{form.pesquisa.data}%'))\
+    .paginate(page=page, per_page=5, error_out=False)
+    return render_template('periodos.html', titulo='Período' , periodos=periodos, form=form)
+
+# rota para criar novo formulário periodo
+@app.route('/novoPeriodo')
+def novoPeriodo():
+    if session['usuario_logado'] == None:
+        return redirect(url_for('login',proxima=url_for('novoPeriodo')))
+    form = FormularioPeriodoEdicao()
+    return render_template('novoPeriodo.html', titulo='Novo Período', form=form)
+
+# rota para criar periodo no banco de dados
+@app.route('/criarPeriodo', methods=['POST',])
+def criarPeriodo():
+    form = FormularioPeriodoEdicao(request.form)
+    if not form.validate_on_submit():
+        return redirect(url_for('novoPeriodo'))
+    desc  = form.descricao.data
+    status = form.status.data
+    inicio  = form.inicio.data
+    final = form.final.data
+    periodo = tb_periodos.query.filter_by(desc_periodo=desc).first()
+    if periodo:
+        flash ('Periodo já existe')
+        return redirect(url_for('periodo')) 
+    novoPeriodo= tb_periodos(desc_periodo=desc, status_periodo=status, inicio_periodo=inicio, final_periodo=final)
+    db.session.add(novoPeriodo)
+    db.session.commit()
+    return redirect(url_for('periodo'))   
+
+# rota para visualizar periodo
+@app.route('/visualizarPeriodo/<int:id>')
+def visualizarPeriodo(id):
+    if session['usuario_logado'] == None:
+        return redirect(url_for('login',proxima=url_for('visualizarPeriodo')))
+    periodo = tb_periodos.query.filter_by(cod_periodo=id).first()
+    form = FormularioPeriodoVisualizar()
+    form.descricao.data = periodo.desc_periodo
+    form.status.data = periodo.status_periodo
+    form.inicio.data = periodo.inicio_periodo
+    form.final.data = periodo.final_periodo
+    return render_template('visualizarPeriodo.html', titulo='Visualizar Periodo', id=id, form=form)  
+
+# rota para editar formulário periodo
+@app.route('/editarPeriodo/<int:id>')
+def editarPeriodo(id):
+    if session['usuario_logado'] == None:
+        return redirect(url_for('login',proxima=url_for('visualizarPeriodo')))
+    periodo = tb_periodos.query.filter_by(cod_periodo=id).first()
+    form = FormularioPeriodoEdicao()
+    form.descricao.data = periodo.desc_periodo
+    form.status.data = periodo.status_periodo
+    form.inicio.data = periodo.inicio_periodo
+    form.final.data = periodo.final_periodo
+    return render_template('editarPeriodo.html', titulo='Editar Periodo', id=id, form=form)   
+
+# rota para atualizar periodo no banco de dados
+@app.route('/atualizarPeriodo', methods=['POST',])
+def atualizarPeriodo():
+    form = FormularioTipoLancamentoEdicao(request.form)
+    if form.validate_on_submit():
+        id = request.form['id']
+        periodo = tb_periodos.query.filter_by(cod_periodo=request.form['id']).first()
+        periodo.desc_periodo = form.descricao.data
+        periodo.status_periodo = form.status.data
+        periodo.inicio_periodo = form.inicio.data
+        periodo.final_periodo = form.final.data
+
+        db.session.add(periodo)
+        db.session.commit()
+
+    return redirect(url_for('visualizarPeriodo', id=id))  
+
+# rota para deletar periodo usuario no banco de dados
+@app.route('/deletarPeriodo/<int:id>')
+def deletarPeriodo(id):
+    if session['usuario_logado'] == None:
+        return redirect(url_for('login'))    
+    tb_periodos.query.filter_by(cod_periodo=id).delete()
+    db.session.commit()
+    flash('Periodo apagado com sucesso!')
+    return redirect(url_for('periodo',id=id)) 
+
+#---------------------------------------------------------------------------------------------------------------------------------
+#FUNCIONARIOS
+#---------------------------------------------------------------------------------------------------------------------------------    
+# rota index para mostrar os usuários
+@app.route('/funcionario')
+def funcionario():
+    form = FormularPesquisa()
+    page = request.args.get('page', 1, type=int)
+    funcionarios = tb_usuarios\
+    .query.filter_by(status_usuario=0)\
+    .join(tb_areas, tb_areas.cod_area==tb_usuarios.cod_area)\
+    .join(tb_tipousuario, tb_tipousuario.cod_tipousuario==tb_usuarios.cod_tipousuario)\
+    .add_columns(tb_usuarios.login_usuario, tb_usuarios.cod_usuario, tb_usuarios.nome_usuario, tb_usuarios.status_usuario, tb_areas.desc_area, tb_tipousuario.desc_tipousuario)\
+    .order_by(tb_usuarios.nome_usuario)\
+    .paginate(page=page, per_page=5, error_out=False)
+    return render_template('funcionarios.html', titulo='Funcionários', funcionarios=funcionarios, form=form)

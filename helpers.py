@@ -3,7 +3,7 @@ import os
 from gerenciador import app, db
 from models import tb_usuarios, tb_tipousuario, tb_areas, tb_beneficios
 from flask_wtf import FlaskForm
-from wtforms import StringField, validators, SubmitField,IntegerField, SelectField,PasswordField
+from wtforms import StringField, validators, SubmitField,IntegerField, SelectField,PasswordField,DateField
 
 
 #criação via wftorm do formulario de usuarios
@@ -129,3 +129,23 @@ class FormularioBeneficioUsuarioEdicao(FlaskForm):
 class FormularioBeneficioUsuarioVisualizacao(FlaskForm):
     beneficioUsuario = SelectField('Beneficio:', coerce=int,  choices=[(g.cod_beneficio, g.desc_beneficio) for g in tb_beneficios.query.order_by('desc_beneficio')], render_kw={'readonly': True})
     salvar = SubmitField('Salvar')       
+
+#------------------------------------------------------------------------------------------------------------------------------
+#PERIODO
+#------------------------------------------------------------------------------------------------------------------------------
+
+#criação via wftorm do formulario de area
+class FormularioPeriodoEdicao(FlaskForm):
+    descricao = StringField('Descrição:', [validators.DataRequired(), validators.Length(min=1, max=50)])
+    status = SelectField('Situação:', coerce=int, choices=[(0, 'Ativo'),(1, 'Inativo')])
+    inicio = DateField('Inicio período:', [validators.DataRequired()])
+    final = DateField('Final período:', [validators.DataRequired(),])
+    salvar = SubmitField('Salvar')    
+
+#criação via wftorm do formulario de beneficios
+class FormularioPeriodoVisualizar(FlaskForm):
+    descricao = StringField('Descrição:', [validators.DataRequired(), validators.Length(min=1, max=50)], render_kw={'readonly': True})
+    status = SelectField('Situação:', coerce=int, choices=[(0, 'Ativo'),(1, 'Inativo')], render_kw={'readonly': True})
+    inicio = DateField('Inicio período:', [validators.DataRequired()], render_kw={'readonly': True})
+    final = DateField('Final período:', [validators.DataRequired()], render_kw={'readonly': True})    
+    salvar = SubmitField('Salvar')   
