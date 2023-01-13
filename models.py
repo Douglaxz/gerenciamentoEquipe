@@ -19,7 +19,7 @@ class tb_tipousuario(db.Model):
     desc_tipousuario = db.Column(db.String(50), nullable=False)
     status_tipousuario = db.Column(db.Integer, nullable=False)
 
-# criação da classe usuário conectada com o banco de dados mysql
+# criação da classe beneficios conectada com o banco de dados mysql
 class tb_beneficios(db.Model):
     cod_beneficio = db.Column(db.Integer, primary_key=True, autoincrement=True)
     desc_beneficio = db.Column(db.String(50), nullable=False)
@@ -28,12 +28,21 @@ class tb_beneficios(db.Model):
     def __repr__(self):
         return '<Name %r>' % self.name        
 
-# criação da classe usuário conectada com o banco de dados mysql
+# criação da classe area conectada com o banco de dados mysql
 class tb_areas(db.Model):
     cod_area = db.Column(db.Integer, primary_key=True, autoincrement=True)
     desc_area = db.Column(db.String(50), nullable=False)
     status_area = db.Column(db.Integer, nullable=False)
 
     def __repr__(self):
-        return '<Name %r>' % self.name        
+        return '<Name %r>' % self.name   
+
+# criação da classe tipo lancamento conectada com o banco de dados mysql
+class tb_tipolancamento(db.Model):
+    cod_tipolancamento = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    desc_tipolancamento = db.Column(db.String(50), nullable=False)
+    status_tipolancamento = db.Column(db.Integer, nullable=False)
+
+    def __repr__(self):
+        return '<Name %r>' % self.name       
           

@@ -8,6 +8,8 @@ import time
 # rota index
 @app.route('/')
 def index():
+    if session['usuario_logado'] == None:
+        return redirect(url_for('login',proxima=url_for('novoUsuario')))    
     return render_template('index.html', titulo='Bem vindos')
 
 # rota logout
@@ -44,7 +46,7 @@ def autenticar():
 
 
 #---------------------------------------------------------------------------------------------------------------------------------
-#usuarios
+#USUARIOS
 #---------------------------------------------------------------------------------------------------------------------------------
 
 # rota index para mostrar os usuários
@@ -156,7 +158,7 @@ def imagem(nome_arquivo):
     return send_from_directory('uploads',nome_arquivo)
 
 #---------------------------------------------------------------------------------------------------------------------------------
-#tipo usuarios
+#TIPO USUARIOS
 #---------------------------------------------------------------------------------------------------------------------------------
 
 # rota index para mostrar os tipo usuários
@@ -243,7 +245,7 @@ def deletarTipoUsuario(id):
     return redirect(url_for('tipousuario'))    
 
 #---------------------------------------------------------------------------------------------------------------------------------
-#beneficios
+#BENEFICIOS
 #---------------------------------------------------------------------------------------------------------------------------------
 # rota index para mostrar os beneficios
 @app.route('/beneficio')
@@ -329,7 +331,7 @@ def deletarBeneficio(id):
     flash('Beneficio apagado com sucesso!')
     return redirect(url_for('beneficio'))  
 #---------------------------------------------------------------------------------------------------------------------------------
-#áreas
+#AREAS
 #---------------------------------------------------------------------------------------------------------------------------------
 # rota index para mostrar os area
 @app.route('/area')
@@ -414,3 +416,89 @@ def deletarArea(id):
     db.session.commit()
     flash('Área apagado com sucesso!')
     return redirect(url_for('area')) 
+
+#---------------------------------------------------------------------------------------------------------------------------------
+#TIPO LANÇAMENTO
+#---------------------------------------------------------------------------------------------------------------------------------
+# rota index para mostrar os area
+@app.route('/tipolancamento')
+def tipolancamento():
+    lista = tb_tipolancamento.query.order_by(tb_tipolancamento.cod_area)
+    return render_template('areas.html', tb_tipolancamentotitulo='Tipo Lançamento', lista=lista)
+
+
+# rota para criar novo formulário area 
+@app.route('/novoTipoLancamento')
+def novoArea():
+    if session['usuario_logado'] == None:
+        return redirect(url_for('login',proxima=url_for('novoTipoLancamento')))
+    form = FormularioTipoLancamentoEdicao()
+    return render_template('novoTipoLancamento.html', titulo='Novo Tipo Lançamento', form=form)
+
+# rota para criar area no banco de dados
+@app.route('/criarTipoLancamento', methods=['POST',])
+def criarTipoLancamento():
+    form = FormularioTipoLancamentoEdicao(request.form)
+
+    if not form.validate_on_submit():
+        return redirect(url_for('novoTipoLancamento'))
+
+    desc  = form.descricao.data
+    status = form.status.data
+
+    area = tb_tipolancamento.query.filter_by(desc_tipolancamento=desc).first()
+    if area:
+        flash ('TipoLancamento já existe')
+        return redirect(url_for('tipolancamento')) 
+    novoTipoLancamento= tb_tipolancamento(desc_tipolancamento=desc, status_tipolancamento=status)
+    db.session.add(novoTipoLancamento)
+    db.session.commit()
+    return redirect(url_for('tipolancamento'))   
+
+# rota para visualizar area 
+@app.route('/visualizarTipoLancamento/<int:id>')
+def visualizarTipoLancamento(id):
+    if session['usuario_logado'] == None:
+        return redirect(url_for('login',proxima=url_for('visualizarTipoLancamento')))
+    tipolancamento = tb_tipolancamento.query.filter_by(cod_tipolancamento=id).first()
+    form = FormularioTipoLancamentoVisualizar()
+    form.descricao.data = tipolancamento.desc_tipolancamento
+    form.status.data = tipolancamento.status_tipolancamento
+    return render_template('visualizarTipoLancamento.html', titulo='Visualizar Tipo Lançamento', id=id, form=form)  
+
+# rota para editar formulário area
+@app.route('/editarTipoLancamento/<int:id>')
+def editarTipoLancamento(id):
+    if session['usuario_logado'] == None:
+        return redirect(url_for('login',proxima=url_for('visualizarTipoLancamento')))
+    tipolancamento = tb_tipolancamento.query.filter_by(cod_tipolancamento=id).first()
+    form = FormularioTipoLancamentoEdicao()
+    form.descricao.data = tipolancamento.desc_tipolancamento
+    form.status.data = tipolancamento.status_tipolancamento
+    return render_template('editarTipoLancamento.html', titulo='Editar Tipo Lançamento', id=id, form=form)   
+
+# rota para atualizar area no banco de dados
+@app.route('/atualizarTipoLancamento', methods=['POST',])
+def atualizarTipoLancamento():
+    form = FormularioTipoLancamentoEdicao(request.form)
+
+    if form.validate_on_submit():
+        id = request.form['id']
+        tipolancamento = tb_tipolancamento.query.filter_by(cod_tipolancamento=request.form['id']).first()
+        tipolancamento.desc_tipolancamento = form.descricao.data
+        tipolancamento.status_tipolancamento = form.status.data
+
+        db.session.add(tipolancamento)
+        db.session.commit()
+
+    return redirect(url_for('visualizarTipoLancamento', id=id))    
+
+# rota para deletar area no banco de dados
+@app.route('/deletarTipoLancamento/<int:id>')
+def deletarTipoLancamento(id):
+    if session['usuario_logado'] == None:
+        return redirect(url_for('tipolancamento'))    
+    tb_tipolancamento.query.filter_by(cod_tipolancamento=id).delete()
+    db.session.commit()
+    flash('Tipo Lançamento apagado com sucesso!')
+    return redirect(url_for('tipolancamento')) 

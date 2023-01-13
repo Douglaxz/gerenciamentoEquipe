@@ -77,6 +77,22 @@ class FormularioAreaVisualizar(FlaskForm):
     salvar = SubmitField('Salvar')   
 
 #------------------------------------------------------------------------------------------------------------------------------
+#TIPO LANÇAMENTO
+#------------------------------------------------------------------------------------------------------------------------------
+
+#criação via wftorm do formulario de area
+class FormularioTipoLancamentoEdicao(FlaskForm):
+    descricao = StringField('Descrição', [validators.DataRequired(), validators.Length(min=1, max=50)])
+    status = SelectField('Situação', coerce=int, choices=[(0, 'Ativo'),(1, 'Inativo')])
+    salvar = SubmitField('Salvar')    
+
+#criação via wftorm do formulario de beneficios
+class FormularioTipoLancamentoVisualizar(FlaskForm):
+    descricao = StringField('Descrição', [validators.DataRequired(), validators.Length(min=1, max=50)], render_kw={'readonly': True})
+    status = SelectField('Situação', coerce=int, choices=[(0, 'Ativo'),(1, 'Inativo')], render_kw={'readonly': True})
+    salvar = SubmitField('Salvar')   
+
+#------------------------------------------------------------------------------------------------------------------------------
 # OUTROS
 #------------------------------------------------------------------------------------------------------------------------------
 #classe de upload de imagem (desativada no momento)
