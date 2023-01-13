@@ -667,11 +667,12 @@ def editarPeriodo(id):
     return render_template('editarPeriodo.html', titulo='Editar Periodo', id=id, form=form)   
 
 # rota para atualizar periodo no banco de dados
-@app.route('/atualizarPeriodo', methods=['POST',])
-def atualizarPeriodo():
-    form = FormularioTipoLancamentoEdicao(request.form)
+@app.route('/atualizarPeriodo/<int:id>', methods=['POST',])
+def atualizarPeriodo(id):
+    form = FormularioPeriodoEdicao(request.form)
     if form.validate_on_submit():
         id = request.form['id']
+        
         periodo = tb_periodos.query.filter_by(cod_periodo=request.form['id']).first()
         periodo.desc_periodo = form.descricao.data
         periodo.status_periodo = form.status.data
