@@ -44,8 +44,6 @@
     </tbody>
 </table>
 
-
-
 <!-- Pagination Links-->
 <div class="text-right">
   <a href="{{ url_for('usuario', page=usuarios.prev_num) }}"
@@ -81,5 +79,4 @@
 <p class="text-right mt-3">
  Mostrando página {{ usuarios.page }} de {{ usuarios.pages }}
 </p>
-
 {% endblock%}

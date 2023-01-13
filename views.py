@@ -278,9 +278,20 @@ def deletarTipoUsuario(id):
 # rota index para mostrar os beneficios
 @app.route('/beneficio')
 def beneficio():
-    lista = tb_beneficios.query.order_by(tb_beneficios.cod_beneficio)
-    return render_template('beneficios.html', titulo='Beneficios', lista=lista)
+    page = request.args.get('page', 1, type=int)
+    form = FormularPesquisa()    
+    beneficios = tb_beneficios.query.order_by(tb_beneficios.desc_beneficio)\
+    .paginate(page=page, per_page=5, error_out=False)
+    return render_template('beneficios.html', titulo='Beneficios', beneficios=beneficios, form=form)
 
+@app.route('/beneficioPesquisa', methods=['POST',])
+def beneficioPesquisa():
+    page = request.args.get('page', 1, type=int)
+    form = FormularPesquisa()
+    lista = tb_beneficios.query.order_by(tb_beneficios.desc_beneficio)\
+    .filter(tb_beneficios.desc_beneficio.ilike(f'%{form.pesquisa.data}%'))\
+    .paginate(page=page, per_page=5, error_out=False)
+    return render_template('beneficios.html', titulo='Benefícios' , lista=lista, form=form)
 
 # rota para criar novo formulário usuário 
 @app.route('/novoBeneficio')
@@ -364,9 +375,20 @@ def deletarBeneficio(id):
 # rota index para mostrar os area
 @app.route('/area')
 def area():
-    lista = tb_areas.query.order_by(tb_areas.cod_area)
-    return render_template('areas.html', titulo='Áreas', lista=lista)
+    page = request.args.get('page', 1, type=int)
+    form = FormularPesquisa()
+    areas = tb_areas.query.order_by(tb_areas.cod_area)\
+    .paginate(page=page, per_page=5, error_out=False)
+    return render_template('areas.html', titulo='Áreas', areas=areas, form=form)
 
+@app.route('/areaPesquisa', methods=['POST',])
+def areaPesquisa():
+    page = request.args.get('page', 1, type=int)
+    form = FormularPesquisa()
+    areas = tb_areas.query.order_by(tb_areas.desc_area)\
+    .filter(tb_areas.desc_area.ilike(f'%{form.pesquisa.data}%'))\
+    .paginate(page=page, per_page=5, error_out=False)
+    return render_template('areas.html', titulo='Áreas' , areas=areas, form=form)
 
 # rota para criar novo formulário area 
 @app.route('/novoArea')
