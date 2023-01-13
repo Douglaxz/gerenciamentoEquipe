@@ -1,8 +1,8 @@
 # importação de dependencias
 from flask import Flask, render_template, request, redirect, session, flash, url_for, send_from_directory
 from gerenciador import app, db
-from models import tb_usuarios, tb_tipousuario, tb_beneficios, tb_areas, tb_tipolancamento
-from helpers import recupera_imagem,deleta_arquivos, FormularPesquisa, FormularioUsuario, FormularioUsuarioVisualizar, FormularioTipoUsuarioEdicao,FormularioTipoUsuarioVisualizar, FormularioBeneficiosEdicao, FormularioBeneficiosVisualizar, FormularioAreaEdicao, FormularioAreaVisualizar, FormularioTipoLancamentoVisualizar, FormularioTipoLancamentoEdicao
+from models import tb_usuarios, tb_tipousuario, tb_beneficios, tb_areas, tb_tipolancamento, tb_beneficiousuario
+from helpers import recupera_imagem,deleta_arquivos, FormularioBeneficioUsuarioEdicao, FormularPesquisa, FormularioUsuario, FormularioUsuarioVisualizar, FormularioTipoUsuarioEdicao,FormularioTipoUsuarioVisualizar, FormularioBeneficiosEdicao, FormularioBeneficiosVisualizar, FormularioAreaEdicao, FormularioAreaVisualizar, FormularioTipoLancamentoVisualizar, FormularioTipoLancamentoEdicao
 import time
 
 # rota index
@@ -577,3 +577,38 @@ def deletarTipoLancamento(id):
     db.session.commit()
     flash('Tipo Lançamento apagado com sucesso!')
     return redirect(url_for('tipolancamento')) 
+
+#---------------------------------------------------------------------------------------------------------------------------------
+#BENEFICIO USUARIOS
+#---------------------------------------------------------------------------------------------------------------------------------
+# rota para criar novo formulário beneficio usuário 
+@app.route('/novoBeneficioUsuario/<int:id>')
+def novoBeneficioUsuario(id):
+    if session['usuario_logado'] == None:
+        return redirect(url_for('login',proxima=url_for('novoTipoUsuario')))
+    form = FormularioBeneficioUsuarioEdicao()
+    return render_template('novoBeneficioUsuario.html', titulo='Novo Beneficio Usuário', form=form, id=id)
+
+# rota para criar usuário no banco de dados
+@app.route('/criarBeneficioUsuario/<int:id>', methods=['POST',])
+def criarBeneficioUsuario(id):
+    form = FormularioBeneficioUsuarioEdicao(request.form)
+
+    if not form.validate_on_submit():
+        return redirect(url_for('novoBeneficioUsuario',id=id))
+
+    beneficio  = form.beneficio.data
+    usuario = id
+
+
+    beneficiousuario = tb_beneficiousuario.query.filter_by(cod_usuario=id, cod_beneficio=beneficio).first()
+    if beneficiousuario:
+        flash ('Beneficio já cadastrado para esse usuário')
+        return redirect(url_for('visualizarUsuario',id=id)) 
+    novoBeneficioUsuario = tb_beneficiousuario(cod_usuario=usuario, cod_beneficio=beneficio)
+    
+    db.session.add(novoBeneficioUsuario)
+    db.session.commit()
+
+
+    return redirect(url_for('visualizarUsuario',id=id))    

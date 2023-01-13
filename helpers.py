@@ -1,7 +1,7 @@
 #importações
 import os
 from gerenciador import app, db
-from models import tb_usuarios, tb_tipousuario, tb_areas
+from models import tb_usuarios, tb_tipousuario, tb_areas, tb_beneficios
 from flask_wtf import FlaskForm
 from wtforms import StringField, validators, SubmitField,IntegerField, SelectField,PasswordField
 
@@ -117,3 +117,11 @@ def deleta_arquivos(id):
     arquivo = recupera_imagem(id)
     if arquivo != 'semfoto.png':
         os.remove(os.path.join(app.config['UPLOAD_PATH'],arquivo))
+
+##------------------------------------------------------------------------------------------------------------------------------
+# BENEFICIO USUÁRIO
+##------------------------------------------------------------------------------------------------------------------------------
+
+class FormularioBeneficioUsuarioEdicao(FlaskForm):
+    beneficio = SelectField('Beneficio:', coerce=int,  choices=[(g.cod_beneficio, g.desc_beneficio) for g in tb_beneficios.query.order_by('desc_beneficio')])
+    salvar = SubmitField('Salvar')       

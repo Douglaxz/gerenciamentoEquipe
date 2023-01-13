@@ -46,5 +46,15 @@ class tb_tipolancamento(db.Model):
     sigla_tipolancamento = db.Column(db.String(50), nullable=False)
 
     def __repr__(self):
-        return '<Name %r>' % self.name       
+        return '<Name %r>' % self.name
+
+# criação da classe beneficio usuario conectada com o banco de dados mysql
+class tb_beneficiousuario(db.Model):
+    cod_beneficiousuario = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    cod_usuario = db.Column(db.Integer, nullable=False)
+    cod_beneficio = db.Column(db.Integer, nullable=False)
+    
+
+    def __repr__(self):
+        return '<Name %r>' % self.name      
           
