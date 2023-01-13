@@ -82,12 +82,14 @@ class FormularioAreaVisualizar(FlaskForm):
 
 #criação via wftorm do formulario de area
 class FormularioTipoLancamentoEdicao(FlaskForm):
+    sigla = StringField('Sigla', [validators.DataRequired(), validators.Length(min=1, max=2)])
     descricao = StringField('Descrição', [validators.DataRequired(), validators.Length(min=1, max=50)])
     status = SelectField('Situação', coerce=int, choices=[(0, 'Ativo'),(1, 'Inativo')])
     salvar = SubmitField('Salvar')    
 
 #criação via wftorm do formulario de beneficios
 class FormularioTipoLancamentoVisualizar(FlaskForm):
+    sigla = StringField('Sigla', [validators.DataRequired(), validators.Length(min=1, max=2)], render_kw={'readonly': True})
     descricao = StringField('Descrição', [validators.DataRequired(), validators.Length(min=1, max=50)], render_kw={'readonly': True})
     status = SelectField('Situação', coerce=int, choices=[(0, 'Ativo'),(1, 'Inativo')], render_kw={'readonly': True})
     salvar = SubmitField('Salvar')   

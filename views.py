@@ -1,8 +1,8 @@
 # importação de dependencias
 from flask import Flask, render_template, request, redirect, session, flash, url_for, send_from_directory
 from gerenciador import app, db
-from models import tb_usuarios, tb_tipousuario, tb_beneficios, tb_areas
-from helpers import recupera_imagem,deleta_arquivos, FormularioUsuario, FormularioUsuarioVisualizar, FormularioTipoUsuarioEdicao,FormularioTipoUsuarioVisualizar, FormularioBeneficiosEdicao, FormularioBeneficiosVisualizar, FormularioAreaEdicao, FormularioAreaVisualizar
+from models import tb_usuarios, tb_tipousuario, tb_beneficios, tb_areas, tb_tipolancamento
+from helpers import recupera_imagem,deleta_arquivos, FormularioUsuario, FormularioUsuarioVisualizar, FormularioTipoUsuarioEdicao,FormularioTipoUsuarioVisualizar, FormularioBeneficiosEdicao, FormularioBeneficiosVisualizar, FormularioAreaEdicao, FormularioAreaVisualizar, FormularioTipoLancamentoVisualizar, FormularioTipoLancamentoEdicao
 import time
 
 # rota index
@@ -420,22 +420,22 @@ def deletarArea(id):
 #---------------------------------------------------------------------------------------------------------------------------------
 #TIPO LANÇAMENTO
 #---------------------------------------------------------------------------------------------------------------------------------
-# rota index para mostrar os area
+# rota index para mostrar os tipo lancamento
 @app.route('/tipolancamento')
 def tipolancamento():
-    lista = tb_tipolancamento.query.order_by(tb_tipolancamento.cod_area)
-    return render_template('areas.html', tb_tipolancamentotitulo='Tipo Lançamento', lista=lista)
+    lista = tb_tipolancamento.query.order_by(tb_tipolancamento.cod_tipolancamento)
+    return render_template('tiposlancamento.html', titulo='Tipo Lançamento', lista=lista)
 
 
-# rota para criar novo formulário area 
+# rota para criar novo formulário tipo lancamento
 @app.route('/novoTipoLancamento')
-def novoArea():
+def novoTipoLancamento():
     if session['usuario_logado'] == None:
         return redirect(url_for('login',proxima=url_for('novoTipoLancamento')))
     form = FormularioTipoLancamentoEdicao()
     return render_template('novoTipoLancamento.html', titulo='Novo Tipo Lançamento', form=form)
 
-# rota para criar area no banco de dados
+# rota para criar tipo lancamento no banco de dados
 @app.route('/criarTipoLancamento', methods=['POST',])
 def criarTipoLancamento():
     form = FormularioTipoLancamentoEdicao(request.form)
@@ -443,41 +443,44 @@ def criarTipoLancamento():
     if not form.validate_on_submit():
         return redirect(url_for('novoTipoLancamento'))
 
+    sigla  = form.sigla.data
     desc  = form.descricao.data
     status = form.status.data
 
-    area = tb_tipolancamento.query.filter_by(desc_tipolancamento=desc).first()
-    if area:
+    tipolancamento = tb_tipolancamento.query.filter_by(desc_tipolancamento=desc).first()
+    if tipolancamento:
         flash ('TipoLancamento já existe')
         return redirect(url_for('tipolancamento')) 
-    novoTipoLancamento= tb_tipolancamento(desc_tipolancamento=desc, status_tipolancamento=status)
+    novoTipoLancamento= tb_tipolancamento(desc_tipolancamento=desc, status_tipolancamento=status, sigla_tipolancamento=sigla)
     db.session.add(novoTipoLancamento)
     db.session.commit()
     return redirect(url_for('tipolancamento'))   
 
-# rota para visualizar area 
+# rota para visualizar tipo lancamento 
 @app.route('/visualizarTipoLancamento/<int:id>')
 def visualizarTipoLancamento(id):
     if session['usuario_logado'] == None:
         return redirect(url_for('login',proxima=url_for('visualizarTipoLancamento')))
     tipolancamento = tb_tipolancamento.query.filter_by(cod_tipolancamento=id).first()
     form = FormularioTipoLancamentoVisualizar()
+    form.sigla.data = tipolancamento.sigla_tipolancamento
     form.descricao.data = tipolancamento.desc_tipolancamento
     form.status.data = tipolancamento.status_tipolancamento
     return render_template('visualizarTipoLancamento.html', titulo='Visualizar Tipo Lançamento', id=id, form=form)  
 
-# rota para editar formulário area
+# rota para editar formulário tipo lançamento
 @app.route('/editarTipoLancamento/<int:id>')
 def editarTipoLancamento(id):
     if session['usuario_logado'] == None:
         return redirect(url_for('login',proxima=url_for('visualizarTipoLancamento')))
     tipolancamento = tb_tipolancamento.query.filter_by(cod_tipolancamento=id).first()
     form = FormularioTipoLancamentoEdicao()
+    form.sigla.data = tipolancamento.sigla_tipolancamento
     form.descricao.data = tipolancamento.desc_tipolancamento
     form.status.data = tipolancamento.status_tipolancamento
     return render_template('editarTipoLancamento.html', titulo='Editar Tipo Lançamento', id=id, form=form)   
 
-# rota para atualizar area no banco de dados
+# rota para atualizar tipo lancamento no banco de dados
 @app.route('/atualizarTipoLancamento', methods=['POST',])
 def atualizarTipoLancamento():
     form = FormularioTipoLancamentoEdicao(request.form)
@@ -485,6 +488,7 @@ def atualizarTipoLancamento():
     if form.validate_on_submit():
         id = request.form['id']
         tipolancamento = tb_tipolancamento.query.filter_by(cod_tipolancamento=request.form['id']).first()
+        tipolancamento.sigla_tipolancamento = form.sigla.data
         tipolancamento.desc_tipolancamento = form.descricao.data
         tipolancamento.status_tipolancamento = form.status.data
 
@@ -493,7 +497,7 @@ def atualizarTipoLancamento():
 
     return redirect(url_for('visualizarTipoLancamento', id=id))    
 
-# rota para deletar area no banco de dados
+# rota para deletar tipo lancamento no banco de dados
 @app.route('/deletarTipoLancamento/<int:id>')
 def deletarTipoLancamento(id):
     if session['usuario_logado'] == None:

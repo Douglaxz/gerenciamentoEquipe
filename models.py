@@ -42,6 +42,7 @@ class tb_tipolancamento(db.Model):
     cod_tipolancamento = db.Column(db.Integer, primary_key=True, autoincrement=True)
     desc_tipolancamento = db.Column(db.String(50), nullable=False)
     status_tipolancamento = db.Column(db.Integer, nullable=False)
+    sigla_tipolancamento = db.Column(db.String(50), nullable=False)
 
     def __repr__(self):
         return '<Name %r>' % self.name       
