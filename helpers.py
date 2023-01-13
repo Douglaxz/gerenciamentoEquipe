@@ -1,9 +1,9 @@
 #importações
 import os
 from gerenciador import app, db
-from models import tb_usuarios, tb_tipousuario
+from models import tb_usuarios, tb_tipousuario, tb_areas
 from flask_wtf import FlaskForm
-from wtforms import StringField, validators, SubmitField,IntegerField, SelectField
+from wtforms import StringField, validators, SubmitField,IntegerField, SelectField,PasswordField
 
 ##------------------------------------------------------------------------------------------------------------------------------
 # USUÁRIO
@@ -11,21 +11,23 @@ from wtforms import StringField, validators, SubmitField,IntegerField, SelectFie
 
 #criação via wftorm do formulario de usuarios
 class FormularioUsuario(FlaskForm):
-    nome = StringField('Nome', [validators.DataRequired(), validators.Length(min=1, max=50)])
-    senha = StringField('Senha', [validators.DataRequired(), validators.Length(min=1, max=50)])
-    status = SelectField('Situação', coerce=int, choices=[(0,"Ativo"),(1,"Inativo")])
-    login = StringField('Login', [validators.DataRequired(), validators.Length(min=1, max=50)])    
-    tipousuario = SelectField('Situação', coerce=int,  choices=[(g.cod_tipousuario, g.desc_tipousuario) for g in tb_tipousuario.query.order_by('desc_tipousuario')])
+    nome = StringField('Nome:', [validators.DataRequired(), validators.Length(min=1, max=50)])
+    senha = PasswordField('Senha:', [validators.DataRequired(), validators.Length(min=1, max=50)])
+    status = SelectField('Situação:', coerce=int, choices=[(0,"Ativo"),(1,"Inativo")])
+    login = StringField('Login:', [validators.DataRequired(), validators.Length(min=1, max=50)])    
+    tipousuario = SelectField('Situação:', coerce=int,  choices=[(g.cod_tipousuario, g.desc_tipousuario) for g in tb_tipousuario.query.order_by('desc_tipousuario')])
+    area = SelectField('Area:', coerce=int,  choices=[(g.cod_area, g.desc_area) for g in tb_areas.query.order_by('desc_area')])
     salvar = SubmitField('Salvar')
 
 
 #criação via wftorm do formulario de usuarios
 class FormularioUsuarioVisualizar(FlaskForm):
-    nome = StringField('Nome', [validators.DataRequired(), validators.Length(min=1, max=50)],render_kw={'readonly': True})
-    senha = StringField('Senha', [validators.DataRequired(), validators.Length(min=1, max=50)], render_kw={'readonly': True})
-    status = SelectField('Situação', coerce=int, choices=[(0,"Ativo"),(1,"Inativo")], render_kw={'readonly': True})
-    login = StringField('Login', [validators.DataRequired(), validators.Length(min=1, max=50)], render_kw={'readonly': True})
-    tipousuario = SelectField('Tipo', coerce=int, choices=[(g.cod_tipousuario, g.desc_tipousuario) for g in tb_tipousuario.query.order_by('desc_tipousuario')], render_kw={'readonly': True})
+    nome = StringField('Nome:', [validators.DataRequired(), validators.Length(min=1, max=50)],render_kw={'readonly': True})
+    senha = PasswordField('Senha:', [validators.DataRequired(), validators.Length(min=1, max=50)], render_kw={'readonly': True})
+    status = SelectField('Situação:', coerce=int, choices=[(0,"Ativo"),(1,"Inativo")], render_kw={'readonly': True})
+    login = StringField('Login:', [validators.DataRequired(), validators.Length(min=1, max=50)], render_kw={'readonly': True})
+    tipousuario = SelectField('Tipo:', coerce=int, choices=[(g.cod_tipousuario, g.desc_tipousuario) for g in tb_tipousuario.query.order_by('desc_tipousuario')], render_kw={'readonly': True})
+    area = SelectField('Area:', coerce=int, choices=[(g.cod_area, g.desc_area) for g in tb_areas.query.order_by('desc_area')], render_kw={'readonly': True})
     salvar = SubmitField('Editar')    
 
 #------------------------------------------------------------------------------------------------------------------------------
@@ -34,14 +36,14 @@ class FormularioUsuarioVisualizar(FlaskForm):
 
 #criação via wftorm do formulario de tipo usuarios
 class FormularioTipoUsuarioEdicao(FlaskForm):
-    descricao = StringField('Descrição', [validators.DataRequired(), validators.Length(min=1, max=50)])
-    status = SelectField('Situação', coerce=int, choices=[(0, 'Ativo'),(1, 'Inativo')])
+    descricao = StringField('Descrição:', [validators.DataRequired(), validators.Length(min=1, max=50)])
+    status = SelectField('Situação:', coerce=int, choices=[(0, 'Ativo'),(1, 'Inativo')])
     salvar = SubmitField('Salvar')    
 
 #criação via wftorm do formulario de tipo usuarios
 class FormularioTipoUsuarioVisualizar(FlaskForm):
-    descricao = StringField('Descrição', [validators.DataRequired(), validators.Length(min=1, max=50)], render_kw={'readonly': True})
-    status = SelectField('Situação', coerce=int, choices=[(0, 'Ativo'),(1, 'Inativo')], render_kw={'readonly': True})
+    descricao = StringField('Descrição:', [validators.DataRequired(), validators.Length(min=1, max=50)], render_kw={'readonly': True})
+    status = SelectField('Situação:', coerce=int, choices=[(0, 'Ativo'),(1, 'Inativo')], render_kw={'readonly': True})
     salvar = SubmitField('Salvar')    
 
 #------------------------------------------------------------------------------------------------------------------------------
@@ -50,14 +52,14 @@ class FormularioTipoUsuarioVisualizar(FlaskForm):
 
 #criação via wftorm do formulario de beneficios
 class FormularioBeneficiosEdicao(FlaskForm):
-    descricao = StringField('Descrição', [validators.DataRequired(), validators.Length(min=1, max=50)])
-    status = SelectField('Situação', coerce=int, choices=[(0, 'Ativo'),(1, 'Inativo')])
+    descricao = StringField('Descrição:', [validators.DataRequired(), validators.Length(min=1, max=50)])
+    status = SelectField('Situação:', coerce=int, choices=[(0, 'Ativo'),(1, 'Inativo')])
     salvar = SubmitField('Salvar')    
 
 #criação via wftorm do formulario de beneficios
 class FormularioBeneficiosVisualizar(FlaskForm):
-    descricao = StringField('Descrição', [validators.DataRequired(), validators.Length(min=1, max=50)], render_kw={'readonly': True})
-    status = SelectField('Situação', coerce=int, choices=[(0, 'Ativo'),(1, 'Inativo')], render_kw={'readonly': True})
+    descricao = StringField('Descrição:', [validators.DataRequired(), validators.Length(min=1, max=50)], render_kw={'readonly': True})
+    status = SelectField('Situação:', coerce=int, choices=[(0, 'Ativo'),(1, 'Inativo')], render_kw={'readonly': True})
     salvar = SubmitField('Salvar')    
 
 #------------------------------------------------------------------------------------------------------------------------------
@@ -66,14 +68,14 @@ class FormularioBeneficiosVisualizar(FlaskForm):
 
 #criação via wftorm do formulario de area
 class FormularioAreaEdicao(FlaskForm):
-    descricao = StringField('Descrição', [validators.DataRequired(), validators.Length(min=1, max=50)])
-    status = SelectField('Situação', coerce=int, choices=[(0, 'Ativo'),(1, 'Inativo')])
+    descricao = StringField('Descrição:', [validators.DataRequired(), validators.Length(min=1, max=50)])
+    status = SelectField('Situação:', coerce=int, choices=[(0, 'Ativo'),(1, 'Inativo')])
     salvar = SubmitField('Salvar')    
 
 #criação via wftorm do formulario de beneficios
 class FormularioAreaVisualizar(FlaskForm):
-    descricao = StringField('Descrição', [validators.DataRequired(), validators.Length(min=1, max=50)], render_kw={'readonly': True})
-    status = SelectField('Situação', coerce=int, choices=[(0, 'Ativo'),(1, 'Inativo')], render_kw={'readonly': True})
+    descricao = StringField('Descrição:', [validators.DataRequired(), validators.Length(min=1, max=50)], render_kw={'readonly': True})
+    status = SelectField('Situação:', coerce=int, choices=[(0, 'Ativo'),(1, 'Inativo')], render_kw={'readonly': True})
     salvar = SubmitField('Salvar')   
 
 #------------------------------------------------------------------------------------------------------------------------------
@@ -82,16 +84,16 @@ class FormularioAreaVisualizar(FlaskForm):
 
 #criação via wftorm do formulario de area
 class FormularioTipoLancamentoEdicao(FlaskForm):
-    sigla = StringField('Sigla', [validators.DataRequired(), validators.Length(min=1, max=2)])
-    descricao = StringField('Descrição', [validators.DataRequired(), validators.Length(min=1, max=50)])
-    status = SelectField('Situação', coerce=int, choices=[(0, 'Ativo'),(1, 'Inativo')])
+    sigla = StringField('Sigla:', [validators.DataRequired(), validators.Length(min=1, max=2)])
+    descricao = StringField('Descrição:', [validators.DataRequired(), validators.Length(min=1, max=50)])
+    status = SelectField('Situação:', coerce=int, choices=[(0, 'Ativo'),(1, 'Inativo')])
     salvar = SubmitField('Salvar')    
 
 #criação via wftorm do formulario de beneficios
 class FormularioTipoLancamentoVisualizar(FlaskForm):
-    sigla = StringField('Sigla', [validators.DataRequired(), validators.Length(min=1, max=2)], render_kw={'readonly': True})
-    descricao = StringField('Descrição', [validators.DataRequired(), validators.Length(min=1, max=50)], render_kw={'readonly': True})
-    status = SelectField('Situação', coerce=int, choices=[(0, 'Ativo'),(1, 'Inativo')], render_kw={'readonly': True})
+    sigla = StringField('Sigla:', [validators.DataRequired(), validators.Length(min=1, max=2)], render_kw={'readonly': True})
+    descricao = StringField('Descrição:', [validators.DataRequired(), validators.Length(min=1, max=50)], render_kw={'readonly': True})
+    status = SelectField('Situação:', coerce=int, choices=[(0, 'Ativo'),(1, 'Inativo')], render_kw={'readonly': True})
     salvar = SubmitField('Salvar')   
 
 #------------------------------------------------------------------------------------------------------------------------------

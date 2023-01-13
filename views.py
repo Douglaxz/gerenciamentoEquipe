@@ -52,8 +52,17 @@ def autenticar():
 # rota index para mostrar os usuários
 @app.route('/usuario')
 def usuario():
-    lista1 = tb_usuarios.query.order_by(tb_usuarios.cod_usuario)
+    #lista1 = tb_usuarios.query.order_by(tb_usuarios.cod_usuario)
+    
+    lista1 = tb_usuarios.query\
+    .join(tb_areas, tb_areas.cod_area==tb_usuarios.cod_area)\
+    .join(tb_tipousuario, tb_tipousuario.cod_tipousuario==tb_usuarios.cod_tipousuario)\
+    .add_columns(tb_usuarios.login_usuario, tb_usuarios.cod_usuario, tb_usuarios.nome_usuario, tb_usuarios.status_usuario, tb_areas.desc_area, tb_tipousuario.desc_tipousuario)\
+    .order_by(tb_usuarios.nome_usuario)
+    #.paginate(page, 1, False)
     return render_template('usuarios.html', titulo='Usuários' , usuarios=lista1)
+
+
 
 
 # rota para criar novo formulário usuário 
@@ -77,6 +86,7 @@ def visualizarUsuario(id):
     form.status.data = usuario.status_usuario
     form.login.data = usuario.login_usuario
     form.tipousuario.data = usuario.cod_tipousuario
+    form.area.data = usuario.cod_area
     
     return render_template('visualizarUsuario.html', titulo='Visualizar Usuário', id=id, form=form)   
 
@@ -91,6 +101,8 @@ def editarUsuario(id):
     form.senha.data = usuario.senha_usuario
     form.status.data = usuario.status_usuario
     form.login.data = usuario.login_usuario
+    form.tipousuario.data = usuario.cod_tipousuario
+    form.area.data = usuario.cod_area
     return render_template('editarUsuario.html', titulo='Editar Usuário', id=id, form=form)    
        
 
@@ -107,12 +119,13 @@ def criar():
     status = form.status.data
     login = form.login.data
     tipousuario = form.tipousuario.data
+    area = form.area.data
 
     usuario = tb_usuarios.query.filter_by(nome_usuario=nome).first()
     if usuario:
         flash ('Usuário já existe')
         return redirect(url_for('index')) 
-    novoUsuario = tb_usuarios(nome_usuario=nome, senha_usuario=senha, status_usuario=status, login_usuario=login, cod_tipousuario=tipousuario)
+    novoUsuario = tb_usuarios(nome_usuario=nome, senha_usuario=senha, status_usuario=status, login_usuario=login, cod_tipousuario=tipousuario, cod_area=area)
     
     db.session.add(novoUsuario)
     db.session.commit()
@@ -137,6 +150,7 @@ def atualizarUsuario():
         usuario.status_usuario = form.status.data
         usuario.login_usuario = form.login.data
         usuario.cod_tipousuario = form.tipousuario.data
+        usuario.cod_area = form.area.data
         
         db.session.add(usuario)
         db.session.commit()
@@ -423,7 +437,7 @@ def deletarArea(id):
 # rota index para mostrar os tipo lancamento
 @app.route('/tipolancamento')
 def tipolancamento():
-    lista = tb_tipolancamento.query.order_by(tb_tipolancamento.cod_tipolancamento)
+    lista = tb_tipolancamento.query.order_by(tb_tipolancamento.desc_tipolancamento)
     return render_template('tiposlancamento.html', titulo='Tipo Lançamento', lista=lista)
 
 

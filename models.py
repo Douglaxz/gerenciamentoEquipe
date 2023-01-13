@@ -9,6 +9,7 @@ class tb_usuarios(db.Model):
     status_usuario = db.Column(db.Integer, nullable=False)
     login_usuario = db.Column(db.String(50), nullable=False)
     cod_tipousuario = db.Column(db.Integer, nullable=False)
+    cod_area = db.Column(db.Integer, nullable=False)
 
     def __repr__(self):
         return '<Name %r>' % self.name
