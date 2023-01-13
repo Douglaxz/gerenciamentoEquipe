@@ -2,7 +2,7 @@
 from flask import Flask, render_template, request, redirect, session, flash, url_for, send_from_directory
 from gerenciador import app, db
 from models import tb_usuarios, tb_tipousuario, tb_beneficios, tb_areas, tb_tipolancamento
-from helpers import recupera_imagem,deleta_arquivos, FormularioUsuario, FormularioUsuarioVisualizar, FormularioTipoUsuarioEdicao,FormularioTipoUsuarioVisualizar, FormularioBeneficiosEdicao, FormularioBeneficiosVisualizar, FormularioAreaEdicao, FormularioAreaVisualizar, FormularioTipoLancamentoVisualizar, FormularioTipoLancamentoEdicao
+from helpers import recupera_imagem,deleta_arquivos, FormularPesquisa, FormularioUsuario, FormularioUsuarioVisualizar, FormularioTipoUsuarioEdicao,FormularioTipoUsuarioVisualizar, FormularioBeneficiosEdicao, FormularioBeneficiosVisualizar, FormularioAreaEdicao, FormularioAreaVisualizar, FormularioTipoLancamentoVisualizar, FormularioTipoLancamentoEdicao
 import time
 
 # rota index
@@ -52,18 +52,32 @@ def autenticar():
 # rota index para mostrar os usuários
 @app.route('/usuario')
 def usuario():
-    #lista1 = tb_usuarios.query.order_by(tb_usuarios.cod_usuario)
-    
-    lista1 = tb_usuarios.query\
+    form = FormularPesquisa()
+    page = request.args.get('page', 1, type=int)
+    usuarios = tb_usuarios.query\
     .join(tb_areas, tb_areas.cod_area==tb_usuarios.cod_area)\
     .join(tb_tipousuario, tb_tipousuario.cod_tipousuario==tb_usuarios.cod_tipousuario)\
     .add_columns(tb_usuarios.login_usuario, tb_usuarios.cod_usuario, tb_usuarios.nome_usuario, tb_usuarios.status_usuario, tb_areas.desc_area, tb_tipousuario.desc_tipousuario)\
-    .order_by(tb_usuarios.nome_usuario)
-    #.paginate(page, 1, False)
-    return render_template('usuarios.html', titulo='Usuários' , usuarios=lista1)
+    .order_by(tb_usuarios.nome_usuario)\
+    .paginate(page=page, per_page=5, error_out=False)
+    return render_template('usuarios.html', titulo='Usuários', usuarios=usuarios, form=form)
+
+# rota index para mostrar pesquisa usuários
+@app.route('/usuarioPesquisa', methods=['POST',])
+def usuarioPesquisa():
+    page = request.args.get('page', 1, type=int)
+    form = FormularPesquisa()
+    usuarios = tb_usuarios.query\
+    .filter(tb_usuarios.nome_usuario.ilike(f'%{form.pesquisa.data}%'))\
+    .join(tb_areas, tb_areas.cod_area==tb_usuarios.cod_area)\
+    .join(tb_tipousuario, tb_tipousuario.cod_tipousuario==tb_usuarios.cod_tipousuario)\
+    .add_columns(tb_usuarios.login_usuario, tb_usuarios.cod_usuario, tb_usuarios.nome_usuario, tb_usuarios.status_usuario, tb_areas.desc_area, tb_tipousuario.desc_tipousuario)\
+    .order_by(tb_usuarios.nome_usuario)\
+    .paginate(page=page, per_page=5, error_out=False)
+    return render_template('usuarios.html', titulo='Usuários' , usuarios=usuarios, form=form)
 
 
-
+#.filter_by(nome_usuario="%"+form.pesquisa.data+"%")\
 
 # rota para criar novo formulário usuário 
 @app.route('/novoUsuario')

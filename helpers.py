@@ -5,6 +5,12 @@ from models import tb_usuarios, tb_tipousuario, tb_areas
 from flask_wtf import FlaskForm
 from wtforms import StringField, validators, SubmitField,IntegerField, SelectField,PasswordField
 
+
+#criação via wftorm do formulario de usuarios
+class FormularPesquisa(FlaskForm):
+    pesquisa = StringField('Pesquisa:', [validators.DataRequired(), validators.Length(min=1, max=50)])
+    salvar = SubmitField('Pesquisar')
+
 ##------------------------------------------------------------------------------------------------------------------------------
 # USUÁRIO
 ##------------------------------------------------------------------------------------------------------------------------------
