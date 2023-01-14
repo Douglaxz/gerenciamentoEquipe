@@ -1,15 +1,38 @@
 # importação de dependencias
 from flask import Flask, render_template, request, redirect, session, flash, url_for, send_from_directory
 from gerenciador import app, db
-from models import tb_usuarios, tb_tipousuario, tb_beneficios, tb_areas, tb_tipolancamento, tb_beneficiousuario, tb_periodos
-from helpers import recupera_imagem,deleta_arquivos, FormularioPeriodoEdicao, FormularioPeriodoVisualizar, FormularioBeneficioUsuarioVisualizacao, FormularioBeneficioUsuarioEdicao, FormularPesquisa, FormularioUsuario, FormularioUsuarioVisualizar, FormularioTipoUsuarioEdicao,FormularioTipoUsuarioVisualizar, FormularioBeneficiosEdicao, FormularioBeneficiosVisualizar, FormularioAreaEdicao, FormularioAreaVisualizar, FormularioTipoLancamentoVisualizar, FormularioTipoLancamentoEdicao
+from models import tb_usuarios, \
+    tb_tipousuario, \
+    tb_beneficios, \
+    tb_areas, \
+    tb_tipolancamento, \
+    tb_beneficiousuario,\
+    tb_periodos,\
+    tb_periodofuncionario
+from helpers import recupera_imagem,deleta_arquivos, \
+    FormularioPeriodoEdicao, \
+    FormularioPeriodoVisualizar, \
+    FormularioBeneficioUsuarioVisualizacao, \
+    FormularioBeneficioUsuarioEdicao, \
+    FormularPesquisa, \
+    FormularioUsuario, \
+    FormularioUsuarioVisualizar, \
+    FormularioTipoUsuarioEdicao,\
+    FormularioTipoUsuarioVisualizar, \
+    FormularioBeneficiosEdicao, \
+    FormularioBeneficiosVisualizar, \
+    FormularioAreaEdicao,\
+    FormularioAreaVisualizar,\
+    FormularioTipoLancamentoVisualizar,\
+    FormularioTipoLancamentoEdicao
 import time
+from datetime import date, timedelta
 
 # rota index
 @app.route('/')
 def index():
-    if session['usuario_logado'] == None:
-        return redirect(url_for('login',proxima=url_for('novoUsuario')))    
+    #if session['usuario_logado'] == None:
+    #    return redirect(url_for('login',proxima=url_for('novoUsuario')))    
     return render_template('index.html', titulo='Bem vindos')
 
 # rota logout
@@ -32,6 +55,8 @@ def autenticar():
     if usuario:
         if request.form['senha'] == usuario.senha_usuario:
             session['usuario_logado'] = usuario.login_usuario
+            session['nomeusuario_logado'] = usuario.nome_usuario
+            session['tipousuario_logado'] = usuario.cod_tipousuario
             flash(usuario.nome_usuario + ' Usuário logado com sucesso')
             proximaPagina = request.form['proxima']
             if proximaPagina == "None":
@@ -76,7 +101,7 @@ def usuarioPesquisa():
     .paginate(page=page, per_page=5, error_out=False)
     return render_template('usuarios.html', titulo='Usuários' , usuarios=usuarios, form=form)
 
-#.filter_by(nome_usuario="%"+form.pesquisa.data+"%")\
+
 
 # rota para criar novo formulário usuário 
 @app.route('/novoUsuario')
@@ -709,4 +734,52 @@ def funcionario():
     .add_columns(tb_usuarios.login_usuario, tb_usuarios.cod_usuario, tb_usuarios.nome_usuario, tb_usuarios.status_usuario, tb_areas.desc_area, tb_tipousuario.desc_tipousuario)\
     .order_by(tb_usuarios.nome_usuario)\
     .paginate(page=page, per_page=5, error_out=False)
-    return render_template('funcionarios.html', titulo='Funcionários', funcionarios=funcionarios, form=form)
+    return render_template('funcionarios.html', titulo='Profissionais', funcionarios=funcionarios, form=form)
+
+# rota para visualizar funcionario 
+@app.route('/visualizarFuncionario/<int:id>')
+def visualizarFuncionario(id):
+    if session['usuario_logado'] == None:
+        return redirect(url_for('login',proxima=url_for('visualizarFuncionario')))
+    funcionario = tb_usuarios.query.filter_by(cod_usuario=id).first()
+    form = FormularioUsuarioVisualizar()
+    form.nome.data = funcionario.nome_usuario
+    form.area.data = funcionario.cod_area
+
+    form1 = FormularioPeriodoVisualizar()
+    periodos = tb_periodos.query.filter_by(status_periodo=0)
+    for periodo in periodos:
+        lancamentoFuncionario = tb_periodofuncionario.query.filter_by(cod_usuario=id, cod_periodo=periodo.cod_periodo).all()
+        if lancamentoFuncionario:
+            lancamentos = lancamentoFuncionario
+
+
+
+
+
+    return render_template('visualizarFuncionario.html', titulo='Visualizar Profissional', id=id, form=form, form1=form1, periodos=periodos, lancamentos=lancamentos)   
+
+# rota para incluir periodo para o usuario no banco de dados
+@app.route('/novoPeriodoFuncionario/<int:id><int:periodo>')
+def novoPeriodoFuncionario(id,periodo):
+    if session['usuario_logado'] == None:
+        return redirect(url_for('login'))    
+    periodolancamento = tb_periodos.query.filter_by(cod_periodo=periodo).first()
+
+    if periodolancamento:
+        def daterange(start_date, end_date):
+            for n in range(int((end_date - start_date).days)):
+                yield start_date + timedelta(n)
+
+        start_date = (periodolancamento.inicio_periodo)
+        end_date = (periodolancamento.final_periodo)+ timedelta(days=1)  
+        periodolancamentoFuncionario = tb_periodofuncionario.query.filter_by(cod_periodo=periodo, cod_usuario=id).first()
+        if not periodolancamentoFuncionario:
+            for single_date in daterange(start_date, end_date):
+                if (single_date.weekday() < 5):
+                    novoPeriodoFuncionario= tb_periodofuncionario(cod_usuario=id, cod_periodo=periodo, cod_tipolancamento=7, data_periodoFuncionario=single_date)
+                    db.session.add(novoPeriodoFuncionario)
+                    db.session.commit()            
+   
+    return redirect(url_for('visualizarFuncionario',id=id)) 
+ 

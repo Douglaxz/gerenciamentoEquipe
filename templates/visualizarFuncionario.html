@@ -1,0 +1,71 @@
+{% extends "template.html"%}
+{% block conteudo %}
+<form method="post" action="{{ url_for('editarUsuario',id=id) }}" enctype="multipart/form-data">
+  <br>
+  <div class="container w-100 p-3 bg-dark">
+    <div class="row">
+      <div class="col-lg text-left text-white font-weight-bold">
+        {{ titulo }}
+      </div>
+      <div class="col-md text-right">
+        <a class="btn btn-warning text-white" href="{{url_for('funcionario')}}">Voltar</a>
+      </div>
+    </div>
+  </div>
+  <br>
+  <fieldset>
+    <input type="hidden" name="id" id="id" value="{{id}}">
+    {{form.csrf_token()}}
+    <div class="form-group">
+      {{form.nome.label(class="form-label")}}
+      {{form.nome(class="form-control")}}
+    </div>
+ 
+    <div class="form-group">
+      {{form.area.label(class="form-label")}}
+      {{form.area(class="form-control")}}
+    </div>  
+  </fieldset>
+</form>
+<br>
+<div class="container w-100 p-3 bg-dark">
+  <div class="row">
+    <div class="col-lg text-left text-white font-weight-bold">
+      Períodos
+    </div>
+  </div>
+</div>
+<br>
+<table class="table table-responsiv">
+  <tbody>
+    
+      {% for periodo in periodos%}
+      <tr>
+          <td class="text-left col-md-10" colspan="25">
+            <input type="text" class="form-control" value="{{periodo.desc_periodo}}" readonly="readonly">
+          </td>
+          <td class="text-left col-md-2">
+            <a class="btn btn-success" href="{{url_for('novoPeriodoFuncionario',id=id,periodo=periodo.cod_periodo)}}" onclick="return confirm('Você tem certeza que deseja incluir?')">Incluir</a>
+        </td> 
+                   
+      </tr>
+          <tr>
+          {% for lancamento in lancamentos %}
+          {%if(lancamento.cod_periodo == periodo.cod_periodo): %}
+              <td class="text-left">{{ lancamento.data_periodoFuncionario.day}}</td>           
+          {%endif%} 
+          {% endfor %}
+          </tr>
+          <tr>
+          {% for lancamento in lancamentos %}
+          {%if(lancamento.cod_periodo == periodo.cod_periodo): %}
+            <td class="text-left">{{ lancamento.cod_tipolancamento}}</td>
+          {%endif%}                         
+          {% endfor %}
+          </tr>
+      {% endfor %}
+    </tbody>
+</table>
+
+
+{% endblock%}

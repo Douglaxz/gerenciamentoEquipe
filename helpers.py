@@ -148,4 +148,6 @@ class FormularioPeriodoVisualizar(FlaskForm):
     status = SelectField('Situação:', coerce=int, choices=[(0, 'Ativo'),(1, 'Inativo')], render_kw={'readonly': True})
     inicio = DateField('Inicio período:', [validators.DataRequired()], render_kw={'readonly': True})
     final = DateField('Final período:', [validators.DataRequired()], render_kw={'readonly': True})    
-    salvar = SubmitField('Salvar')   
+    salvar = SubmitField('Salvar') 
+
+

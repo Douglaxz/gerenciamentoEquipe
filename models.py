@@ -63,5 +63,16 @@ class tb_periodos(db.Model):
     final_periodo = db.Column(db.DateTime, nullable=False)
 
     def __repr__(self):
-        return '<Name %r>' % self.name      
+        return '<Name %r>' % self.name     
+
+# criação da classe periodoconectada com o banco de dados mysql    
+class tb_periodofuncionario(db.Model):
+    cod_periodoFuncionario = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    cod_usuario = db.Column(db.Integer, nullable=False)
+    cod_periodo = db.Column(db.Integer, nullable=False)
+    cod_tipolancamento = db.Column(db.Integer, nullable=False)
+    data_periodoFuncionario = db.Column(db.DateTime, nullable=False)
+
+    def __repr__(self):
+        return '<Name %r>' % self.name    
           
