@@ -24,7 +24,9 @@ from helpers import recupera_imagem,deleta_arquivos, \
     FormularioAreaEdicao,\
     FormularioAreaVisualizar,\
     FormularioTipoLancamentoVisualizar,\
-    FormularioTipoLancamentoEdicao
+    FormularioTipoLancamentoEdicao,\
+    FormularioLancamentoVisualizar,\
+    FormularioLancamentoEdicao
 import time
 from datetime import date, timedelta
 
@@ -745,19 +747,24 @@ def visualizarFuncionario(id):
     form = FormularioUsuarioVisualizar()
     form.nome.data = funcionario.nome_usuario
     form.area.data = funcionario.cod_area
+    form1 = FormularioLancamentoEdicao()
 
-    form1 = FormularioPeriodoVisualizar()
     periodos = tb_periodos.query.filter_by(status_periodo=0)
-    for periodo in periodos:
-        lancamentoFuncionario = tb_periodofuncionario.query.filter_by(cod_usuario=id, cod_periodo=periodo.cod_periodo).all()
-        if lancamentoFuncionario:
-            lancamentos = lancamentoFuncionario
-
-
-
-
-
-    return render_template('visualizarFuncionario.html', titulo='Visualizar Profissional', id=id, form=form, form1=form1, periodos=periodos, lancamentos=lancamentos)   
+    if periodos:
+        x = 0
+        for periodo in periodos:
+            lancamentoFuncionario = tb_periodofuncionario.query.filter_by(cod_usuario=id, cod_periodo=periodo.cod_periodo)\
+                                    .join(tb_tipolancamento, tb_tipolancamento.cod_tipolancamento==tb_periodofuncionario.cod_tipolancamento)\
+                                    .add_columns( \
+                                        tb_periodofuncionario.cod_periodoFuncionario, \
+                                        tb_periodofuncionario.data_periodoFuncionario, \
+                                        tb_periodofuncionario.cod_tipolancamento, \
+                                        tb_tipolancamento.sigla_tipolancamento, \
+                                        tb_tipolancamento.desc_tipolancamento) \
+                                    .order_by(tb_periodofuncionario.data_periodoFuncionario)\
+                                    .all()
+            
+    return render_template('visualizarFuncionario.html', titulo='Visualizar Profissional', id=id, form=form, form1=form1, periodos=periodos, lancamentos=lancamentoFuncionario)   
 
 # rota para incluir periodo para o usuario no banco de dados
 @app.route('/novoPeriodoFuncionario/<int:id><int:periodo>')
@@ -782,4 +789,27 @@ def novoPeriodoFuncionario(id,periodo):
                     db.session.commit()            
    
     return redirect(url_for('visualizarFuncionario',id=id)) 
+ 
+
+@app.route('/editarLancamento/<int:lancamento>', methods = ['GET', 'POST'])
+def editarLancamento(lancamento):
+        
+    lancamentoFuncionario = tb_periodofuncionario.query.filter_by(cod_periodoFuncionario=lancamento).first()   
+    form = FormularioLancamentoEdicao()
+    form.tipolancamento.data = lancamentoFuncionario.cod_tipolancamento
+    form.datalancamento.data = lancamentoFuncionario.data_periodoFuncionario
+    return render_template('alterarLancamento.html', titulo='Editar Lançamento', lancamento=lancamento, id=lancamentoFuncionario.cod_usuario, form=form)      
+ 
+@app.route('/atualizarLancamento/<int:lancamento>', methods = ['GET', 'POST'])
+def atualizarLancamento(lancamento):
+    form = FormularioLancamentoEdicao()
+    if form.validate_on_submit():
+        lancamentoFuncionario = tb_periodofuncionario.query.filter_by(cod_periodoFuncionario=lancamento).first()
+        if lancamentoFuncionario:
+            lancamentoFuncionario.cod_tipolancamento = form.tipolancamento.data
+            id = lancamentoFuncionario.cod_usuario
+            db.session.add(lancamentoFuncionario)
+            db.session.commit()
+
+    return redirect(url_for('visualizarFuncionario', id=id))  
  

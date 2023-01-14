@@ -1,7 +1,7 @@
 #importações
 import os
 from gerenciador import app, db
-from models import tb_usuarios, tb_tipousuario, tb_areas, tb_beneficios
+from models import tb_usuarios, tb_tipousuario, tb_areas, tb_beneficios, tb_tipolancamento
 from flask_wtf import FlaskForm
 from wtforms import StringField, validators, SubmitField,IntegerField, SelectField,PasswordField,DateField
 
@@ -148,6 +148,22 @@ class FormularioPeriodoVisualizar(FlaskForm):
     status = SelectField('Situação:', coerce=int, choices=[(0, 'Ativo'),(1, 'Inativo')], render_kw={'readonly': True})
     inicio = DateField('Inicio período:', [validators.DataRequired()], render_kw={'readonly': True})
     final = DateField('Final período:', [validators.DataRequired()], render_kw={'readonly': True})    
+    salvar = SubmitField('Salvar') 
+
+
+#------------------------------------------------------------------------------------------------------------------------------
+#FUNCIONARIO
+#------------------------------------------------------------------------------------------------------------------------------
+
+#criação via wftorm do formulario de area
+class FormularioLancamentoEdicao(FlaskForm):
+    datalancamento = DateField('Data:', [validators.DataRequired()], render_kw={'readonly': True})
+    tipolancamento = SelectField('Tipo Lançamento:', coerce=int, choices=[(g.cod_tipolancamento, g.desc_tipolancamento) for g in tb_tipolancamento.query.order_by('desc_tipolancamento')])
+    salvar = SubmitField('Salvar')    
+
+#criação via wftorm do formulario de beneficios
+class FormularioLancamentoVisualizar(FlaskForm):
+    tipolancamento = SelectField('Tipo Lançamento:', coerce=int, choices=[(g.cod_tipolancamento, g.desc_tipolancamento) for g in tb_tipolancamento.query.order_by('desc_tipolancamento')], render_kw={'readonly': True})    
     salvar = SubmitField('Salvar') 
 
 
