@@ -44,58 +44,12 @@
             <input type="text" class="form-control" value="{{periodo.desc_periodo}}" readonly="readonly">
           </td>
           <td class="text-left col-md-2">
-            <a class="btn btn-success" href="{{url_for('novoPeriodoFuncionario',id=id,periodo=periodo.cod_periodo)}}" onclick="return confirm('Você tem certeza que deseja incluir?')">Incluir</a>
+            <a class="btn btn-warning" href="{{url_for('novoPeriodoFuncionario',id=id,periodo=periodo.cod_periodo)}}">Editar</a>
         </td>     
       </tr>
     </tbody>
   </table>      
-  <table class="table table-striped table-responsiv">
-    <thead class="bg-dark text-white">
-        <tr>
-            <th class="text-left col-md-4">Data</th>
-            <th class="text-left col-md-4">Dia da Semana</th>
-            <th class="text-left col-md-4">Situação</th>
-            <th class="text-left col-md-4">Ação</th>
-        </tr>
-    </thead>
-    <tbody>  
-          {% for lancamento in lancamentos %}
-          {%if(lancamento.data_periodoFuncionario.month == periodo.inicio_periodo.month): %}
-          
-          <tr>
-              <fieldset>
-              <td class="text-left">
-                <input id="data" name="data" class="form-control" type="text" value="{{ lancamento.data_periodoFuncionario.strftime('%d/%m/%Y') }}">
-                
-              </td>          
-              <td class="text-left">
-              {% if lancamento.data_periodoFuncionario.weekday() == 0: %}
-                <input class="form-control" type="text" value="SEG">
-              {% endif %}  
-              {% if lancamento.data_periodoFuncionario.weekday() == 1: %}
-              <input class="form-control" type="text" value="TER">
-              {% endif %} 
-              {% if lancamento.data_periodoFuncionario.weekday() == 2: %}
-              <input class="form-control" type="text" value="QUA">
-              {% endif %}               
-              {% if lancamento.data_periodoFuncionario.weekday() == 3: %}
-              <input class="form-control" type="text" value="QUI">
-              {% endif %} 
-              {% if lancamento.data_periodoFuncionario.weekday() == 4: %}
-              <input class="form-control" type="text" value="SEX">
-              {% endif %} 
-              </td>
-              <td class="text-left">
-                <input class="form-control" type="text" value="{{lancamento.sigla_tipolancamento}} - {{lancamento.desc_tipolancamento}}">
-              <td class="text-left">
-                <a class="btn btn-warning" href="{{url_for('editarLancamento',lancamento=lancamento.cod_periodoFuncionario)}}">Editar</a></div>
-              </td>
-              </fieldset>                        
-          </tr>
-        
-          {%endif%} 
-          {% endfor %}
-      {% endfor %}
+       {% endfor %}
     </tbody>
 </table>
 
