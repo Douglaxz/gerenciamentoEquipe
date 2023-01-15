@@ -2,7 +2,10 @@
 
 # Objetivo
  Este projeto visa criar tanto o backend quanto o frontend do sistema
- que deverá controlar a provisão de beneficios de uma empresa de eventos
+ que deverá controlar a provisão de beneficios (VR, VT, Auxilio Combustível) de uma empresa de eventos
+
+ #Informações adicionais
+ Estarei disponibilizando um script de criação do banco de dados em mysql caso queira rodar a aplicação
 
  # Ferramentas utilizadas agté agora
  -> Python
@@ -41,9 +44,14 @@
 (X) Tela de edição de áreas
 (X) Acoplar na tabela do banco de dados
 
+ TIPOS DE LANÇAMENTO 
+(X) Tela de cadastro de tipos de lançamento
+(X) Tela de listagem de tipos de lançamento
+(X) Tela de visualização de tipos de lançamento
+(X) Tela de edição de tipos de lançamento
+(X) Acoplar na tabela do banco de tipos de lançamento
+
  FUNCIONÁRIO
-( ) Tela de cadastro de áreas
-( ) Tela de listagem de áreas
-( ) Tela de visualização de áreas
-( ) Tela de edição de áreas
-( ) Acoplar na tabela do banco de dados
+(X) Tela de visualização
+(X) Tela inserção lançamento
+(X) Tela de modificação dos dias
