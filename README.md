@@ -5,7 +5,7 @@
  que deverá controlar a provisão de beneficios (VR, VT, Auxilio Combustível) de uma empresa de eventos
 
  #Informações adicionais
- Estarei disponibilizando um script de criação do banco de dados em mysql caso queira rodar a aplicação
+ EStá disponível um script de criação do banco de dados em mysql caso queira rodar a aplicação <<DATABASE>>
 
  # Ferramentas utilizadas agté agora
  -> Python
