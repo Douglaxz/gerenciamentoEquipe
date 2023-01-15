@@ -772,7 +772,7 @@ def novoPeriodoFuncionario(id,periodo):
                     novoPeriodoFuncionario= tb_periodofuncionario(cod_usuario=id, cod_periodo=periodo, cod_tipolancamento=7, data_periodoFuncionario=single_date)
                     db.session.add(novoPeriodoFuncionario)
                     db.session.commit()
-                    return redirect(url_for('visualizarFuncionario',id=id))
+            return redirect(url_for('visualizarFuncionario',id=id))
         else:
             return redirect(url_for('visualizarLancamentoFuncionario',id=id,periodo=periodo))
 
