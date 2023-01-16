@@ -103,8 +103,6 @@ def usuarioPesquisa():
     .paginate(page=page, per_page=5, error_out=False)
     return render_template('usuarios.html', titulo='Usuários' , usuarios=usuarios, form=form)
 
-
-
 # rota para criar novo formulário usuário 
 @app.route('/novoUsuario')
 def novoUsuario():
@@ -126,7 +124,6 @@ def visualizarUsuario(id):
     form.login.data = usuario.login_usuario
     form.tipousuario.data = usuario.cod_tipousuario
     form.area.data = usuario.cod_area
-
     form1 = FormularioBeneficioUsuarioVisualizacao()
     beneficiosusuario = tb_beneficiousuario.query.filter_by(cod_usuario=id)\
         .join(tb_beneficios, tb_beneficios.cod_beneficio==tb_beneficiousuario.cod_beneficio)\
@@ -203,7 +200,7 @@ def deletarUsuario(id):
     flash('Usuario apagado com sucesso!')
     return redirect(url_for('usuario'))    
 
-
+# rota para upload de fotos de usuário no banco de dados (desativado)
 @app.route('/uploads/<nome_arquivo>')
 def imagem(nome_arquivo):
     return send_from_directory('uploads',nome_arquivo)
@@ -221,6 +218,7 @@ def tipousuario():
     .paginate(page=page, per_page=5, error_out=False)
     return render_template('tipousuarios.html', titulo='Tipo Usuários', tiposusuario=tiposusuario, form=form)
 
+# rota index para mostrar pesquisa dos tipo usuários
 @app.route('/tipousuarioPesquisa', methods=['POST',])
 def tipousuarioPesquisa():
     page = request.args.get('page', 1, type=int)
