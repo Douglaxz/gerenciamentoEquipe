@@ -310,6 +310,7 @@ def beneficio():
     .paginate(page=page, per_page=5, error_out=False)
     return render_template('beneficios.html', titulo='Beneficios', beneficios=beneficios, form=form)
 
+# rota index para pesquisar os beneficios
 @app.route('/beneficioPesquisa', methods=['POST',])
 def beneficioPesquisa():
     page = request.args.get('page', 1, type=int)
@@ -401,6 +402,7 @@ def area():
     .paginate(page=page, per_page=5, error_out=False)
     return render_template('areas.html', titulo='Áreas', areas=areas, form=form)
 
+# rota index para pesquisar áreas
 @app.route('/areaPesquisa', methods=['POST',])
 def areaPesquisa():
     page = request.args.get('page', 1, type=int)
@@ -492,6 +494,7 @@ def tipolancamento():
     .paginate(page=page, per_page=5, error_out=False)
     return render_template('tiposlancamento.html', titulo='Tipo Lançamento', tiposlancamento=tiposlancamento, form=form)
 
+# rota index para pesquisar tipos de lançamento
 @app.route('/tipolancamentoPesquisa', methods=['POST',])
 def tipolancamentoPesquisa():
     page = request.args.get('page', 1, type=int)
@@ -581,7 +584,7 @@ def deletarTipoLancamento(id):
 #---------------------------------------------------------------------------------------------------------------------------------
 #BENEFICIO USUARIOS
 #---------------------------------------------------------------------------------------------------------------------------------
-# rota para criar novo formulário beneficio usuário 
+# rota para criar novo formulário beneficio funcionario 
 @app.route('/novoBeneficioUsuario/<int:id>')
 def novoBeneficioUsuario(id):
     if session['usuario_logado'] == None:
@@ -589,7 +592,7 @@ def novoBeneficioUsuario(id):
     form = FormularioBeneficioUsuarioEdicao()
     return render_template('novoBeneficioUsuario.html', titulo='Novo Beneficio Usuário', form=form, id=id)
 
-# rota para criar beneficio usuário no banco de dados
+# rota para criar beneficio do funcionario no banco de dados
 @app.route('/criarBeneficioUsuario/<int:id>', methods=['POST',])
 def criarBeneficioUsuario(id):
     form = FormularioBeneficioUsuarioEdicao(request.form)
@@ -606,7 +609,7 @@ def criarBeneficioUsuario(id):
     db.session.commit()
     return redirect(url_for('visualizarUsuario',id=id)) 
 
-# rota para deletar beneficio usuario no banco de dados
+# rota para deletar beneficio do funcionario no banco de dados
 @app.route('/deletarBeneficioUsuario/<int:id><int:beneficiousuario>')
 def deletarBeneficioUsuario(id,beneficiousuario):
     if session['usuario_logado'] == None:
@@ -628,7 +631,7 @@ def periodo():
     .paginate(page=page, per_page=5, error_out=False)
     return render_template('periodos.html', titulo='Períodos', periodos=periodos, form=form)
 
-# rota index para mostrar os periodo pesquisa
+# rota index para pesquisar os periodo pesquisa
 @app.route('/periodoPesquisa', methods=['POST',])
 def periodoPesquisa():
     page = request.args.get('page', 1, type=int)
@@ -697,19 +700,16 @@ def atualizarPeriodo(id):
     form = FormularioPeriodoEdicao(request.form)
     if form.validate_on_submit():
         id = request.form['id']
-        
         periodo = tb_periodos.query.filter_by(cod_periodo=request.form['id']).first()
         periodo.desc_periodo = form.descricao.data
         periodo.status_periodo = form.status.data
         periodo.inicio_periodo = form.inicio.data
         periodo.final_periodo = form.final.data
-
         db.session.add(periodo)
         db.session.commit()
-
     return redirect(url_for('visualizarPeriodo', id=id))  
 
-# rota para deletar periodo usuario no banco de dados
+# rota para deletar periodo no banco de dados
 @app.route('/deletarPeriodo/<int:id>')
 def deletarPeriodo(id):
     if session['usuario_logado'] == None:
@@ -745,10 +745,7 @@ def visualizarFuncionario(id):
     form = FormularioUsuarioVisualizar()
     form.nome.data = funcionario.nome_usuario
     form.area.data = funcionario.cod_area
-    
     periodos = tb_periodos.query.filter_by(status_periodo=0)
-    
-            
     return render_template('visualizarFuncionario.html', titulo='Visualizar Profissional', id=id, form=form, periodos=periodos)   
 
 # rota para incluir periodo para o usuario no banco de dados
@@ -774,8 +771,7 @@ def novoPeriodoFuncionario(id,periodo):
         else:
             return redirect(url_for('visualizarLancamentoFuncionario',id=id,periodo=periodo))
 
-   
-# rota para visualizar periodo
+# rota para visualizar lancamento do funcionario no banco de dados
 @app.route('/visualizarLancamentoFuncionario/<int:id><int:periodo>')
 def visualizarLancamentoFuncionario(id,periodo):
     form = FormularioLancamentoEdicao()    
@@ -787,6 +783,7 @@ def visualizarLancamentoFuncionario(id,periodo):
     return render_template('editarLancamentoPeriodos.html', titulo='Lançamentos', lancamentos=lancamentos, form=form, id=id,periodo=periodo)
  
 
+# rota para editar lancamento do funcionario no banco de dados
 @app.route('/editarLancamento/<int:lancamento><int:id><int:periodo>', methods = ['GET', 'POST'])
 def editarLancamento(lancamento,id,periodo):
     lancamentoFuncionario = tb_periodofuncionario.query.filter_by(cod_periodoFuncionario=lancamento).first()   
@@ -795,6 +792,7 @@ def editarLancamento(lancamento,id,periodo):
     form.datalancamento.data = lancamentoFuncionario.data_periodoFuncionario
     return render_template('alterarLancamento.html', titulo='Editar Lançamento', lancamento=lancamento, id=lancamentoFuncionario.cod_usuario, periodo=periodo, form=form)      
  
+ # rota para atualizar lancamento do funcionario no banco de dados
 @app.route('/atualizarLancamento/<int:lancamento><int:id><int:periodo>', methods = ['GET', 'POST'])
 def atualizarLancamento(lancamento,id,periodo):
     form = FormularioLancamentoEdicao()
