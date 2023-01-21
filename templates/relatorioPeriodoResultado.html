@@ -1,0 +1,31 @@
+{% extends "template.html"%}
+{% block conteudo %}
+<br>
+
+<table class="table table-striped table-responsiv">
+    <thead class="bg-dark text-white">
+        <tr>
+            <th class="text-left col-md-4">Nome</th>
+            <th class="text-left col-md-2">Status</th>
+            {% for i in range(30) %}   
+              <th class="text-left col-md-2">{{i + 1}}</th>
+            {% endfor %}   
+        </tr>
+    </thead>
+    <tbody>
+      {% for resultado in resultadobusca.items %}
+        <tr>
+            <td class="text-left">{{ resultado.nome_usuario }}</td>
+            <td class="text-left"></td>
+            <td class="text-left"></td>
+            <td class="text-left">
+            <td>
+            <td>
+
+          </td>              
+        </tr>
+      {% endfor %}
+    </tbody>
+</table>
+{% endblock%}
+

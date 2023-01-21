@@ -813,7 +813,33 @@ def atualizarLancamento(lancamento,id,periodo):
 #---------------------------------------------------------------------------------------------------------------------------------
 
 # rota index para mostrar os usuários
-@app.route('/relatorioPeriodo')
+@app.route('/relatorioPeriodo', methods = ['GET', 'POST'])
 def relatorioPeriodo():
     form = FormularioPesquisaPeriodo()
     return render_template('relatorioPeriodo.html', titulo='Relatório por período', form=form)
+
+# rota index para mostrar os usuários
+@app.route('/relatorioPeriodoResultado/', methods = ['GET', 'POST'])
+def relatorioPeriodoResultado():
+    page = request.args.get('page', 1, type=int)
+    periodo = request.form['periodo']
+    periodoescolhido = tb_periodos\
+                        .query.filter_by(cod_periodo=periodo).first()
+    
+
+    resultadobusca = tb_periodofuncionario\
+    .query.filter_by(cod_periodo=periodo)\
+    .join(tb_usuarios, tb_usuarios.cod_usuario==tb_periodofuncionario.cod_usuario)\
+    .join(tb_tipolancamento, tb_tipolancamento.cod_tipolancamento==tb_periodofuncionario.cod_tipolancamento)\
+    .add_columns(tb_usuarios.nome_usuario, tb_periodofuncionario.data_periodoFuncionario, tb_tipolancamento.sigla_tipolancamento, tb_tipolancamento.desc_tipolancamento)\
+    .order_by(tb_usuarios.nome_usuario)\
+    .paginate(page=page, per_page=5, error_out=False)
+
+
+
+    #for resultado in resultadobusca:
+    #    if tempnome != resultado.nome:
+    #        envio[0] = resultado.nome
+    #        tempnome = resultado.nome
+
+    return render_template('relatorioPeriodoResultado.html', titulo='Relatório por período',resultadobusca=resultadobusca, inicio=periodoescolhido.inicio_periodo, final=periodoescolhido.final_periodo)
