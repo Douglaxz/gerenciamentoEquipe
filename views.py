@@ -26,7 +26,8 @@ from helpers import recupera_imagem,deleta_arquivos, \
     FormularioTipoLancamentoVisualizar,\
     FormularioTipoLancamentoEdicao,\
     FormularioLancamentoVisualizar,\
-    FormularioLancamentoEdicao
+    FormularioLancamentoEdicao,\
+    FormularioPesquisaPeriodo
 import time
 from datetime import date, timedelta
 
@@ -806,3 +807,13 @@ def atualizarLancamento(lancamento,id,periodo):
 
     return redirect(url_for('visualizarLancamentoFuncionario', lancamento=lancamento,id=id,periodo=periodo))  
  
+
+#---------------------------------------------------------------------------------------------------------------------------------
+#RELATÓRIOS
+#---------------------------------------------------------------------------------------------------------------------------------
+
+# rota index para mostrar os usuários
+@app.route('/relatorioPeriodo')
+def relatorioPeriodo():
+    form = FormularioPesquisaPeriodo()
+    return render_template('relatorioPeriodo.html', titulo='Relatório por período', form=form)

@@ -1,7 +1,7 @@
 #importações
 import os
 from gerenciador import app, db
-from models import tb_usuarios, tb_tipousuario, tb_areas, tb_beneficios, tb_tipolancamento
+from models import tb_usuarios, tb_tipousuario, tb_areas, tb_beneficios, tb_tipolancamento,tb_periodos
 from flask_wtf import FlaskForm
 from wtforms import StringField, validators, SubmitField,IntegerField, SelectField,PasswordField,DateField
 
@@ -166,4 +166,10 @@ class FormularioLancamentoVisualizar(FlaskForm):
     tipolancamento = SelectField('Tipo Lançamento:', coerce=int, choices=[(g.cod_tipolancamento, g.desc_tipolancamento) for g in tb_tipolancamento.query.order_by('desc_tipolancamento')], render_kw={'readonly': True})    
     salvar = SubmitField('Salvar') 
 
-
+#------------------------------------------------------------------------------------------------------------------------------
+#RELATÓRIOS
+#------------------------------------------------------------------------------------------------------------------------------
+#criação via wftorm do formulario relatório por período
+class FormularioPesquisaPeriodo(FlaskForm):
+    periodo = SelectField('Período:', coerce=int, choices=[(g.cod_periodo, g.desc_periodo) for g in tb_periodos.query.order_by('inicio_periodo')])    
+    pesquisar = SubmitField('Pesquisar') 

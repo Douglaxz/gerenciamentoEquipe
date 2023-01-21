@@ -47,10 +47,16 @@
         <li class="nav-item">
           <a class="nav-link" href="/funcionario">Movimentações</a>
         </li>
+        <li class="nav-item dropdown">
           <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-toggle="dropdown"
             aria-haspopup="true" aria-expanded="false">
             Relatórios
-          </a>        
+          </a>
+          <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+            <a class="dropdown-item" href="/relatorioPeriodo">Período</a>
+            <a class="dropdown-item" href="/beneficio">Profissionais</a>
+          </div>
+        </li>                
         <li class="nav-item">
           <a class="nav-link" href="/logout">Logout</a>
         </li>
@@ -89,7 +95,8 @@
 
 </body>
 <footer>
-  <hr style="height:2px; width:100%; border-width:0; color:gray; background-color:gray">
-</footer>
-
+  <hr style="height:2px; width:100%; border-width:0; color:gray; background-color:gray"></footer>
+  <div align="right">
+    Gerenciamento de beneficio para profissionais
+  </div>
 </html>

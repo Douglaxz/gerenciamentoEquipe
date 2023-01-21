@@ -89,3 +89,12 @@ td {
     pointer-events: none;
     touch-action: none;
   }
+
+  .div_central {
+    width: 100vw;
+    height: 80vh;
+    vertical-align: middle;
+    text-align: center;
+    display: table-cell;
+    position: relative;
+  }
