@@ -835,11 +835,20 @@ def relatorioPeriodoResultado():
     .order_by(tb_usuarios.nome_usuario)\
     .paginate(page=page, per_page=5, error_out=False)
 
+    lista = []
+    tempnome = ""
+    for resultado in resultadobusca:
+        if tempnome != resultado.nome_usuario:
+            temp = resultado.nome_usuario
+            temp = temp + "," + resultado.sigla_tipolancamento
+        else:
+            temp = temp + "," + resultado.sigla_tipolancamento
+        tempnome = resultado.nome_usuario
+    
+    return tempnome
+        
 
 
-    #for resultado in resultadobusca:
-    #    if tempnome != resultado.nome:
-    #        envio[0] = resultado.nome
     #        tempnome = resultado.nome
 
     return render_template('relatorioPeriodoResultado.html', titulo='Relatório por período',resultadobusca=resultadobusca, inicio=periodoescolhido.inicio_periodo, final=periodoescolhido.final_periodo)
