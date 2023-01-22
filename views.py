@@ -842,22 +842,45 @@ def relatorioPeriodoResultado():
     lista = []
     tempnome = ""
     temp = ""
+    total = resultadobusca.count()
+    x = 1
+
 
     for resultado in resultadobusca:   
         if tempnome != resultado.nome_usuario:
             if temp != "":
+                temp = temp + "}"
                 lista.append(temp)
                 temp = ""      
+            temp = temp + "{"
             temp = temp + "'"
-            temp = temp + "nome:"
+            temp = temp + "nome"
+            temp = temp + "'"
+            temp = temp + ":"
             temp = temp + "'"
             temp = temp + resultado.nome_usuario
-            temp = temp + "'"     
+            temp = temp + "'"
+            temp = temp + ","
+            temp = temp + "'"
+            temp = temp + resultado.data_periodoFuncionario.strftime("%d/%m/%Y")
+            temp = temp + "'"
+            temp = temp + ":"
+            temp = temp + "'"
+            temp = temp + resultado.sigla_tipolancamento
+            temp = temp + "'" 
+        else:
+            temp = temp + ","
+            temp = temp + "'"
+            temp = temp + resultado.data_periodoFuncionario.strftime("%d/%m/%Y")
+            temp = temp + "'"
+            temp = temp + ":"
+            temp = temp + "'"
+            temp = temp + resultado.sigla_tipolancamento
+            temp = temp + "'"             
         tempnome = resultado.nome_usuario           
+        if x == total:
+            lista.append(temp)
+        x = x + 1
 
-
- 
-        
     
-    
-    return render_template('relatorioPeriodoResultado.html', titulo='Relatório por período',lista=lista, inicio=periodoescolhido.inicio_periodo, final=periodoescolhido.final_periodo)
+    return render_template('relatorioPeriodoResultado.html', titulo='Relatório por período',lista=lista, inicio=periodoescolhido.inicio_periodo, final=periodoescolhido.final_periodo, total=total)

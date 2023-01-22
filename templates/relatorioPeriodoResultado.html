@@ -13,20 +13,15 @@
         </tr>
     </thead>
     <tbody>
-      
+      {% for item in lista %}
         <tr>
-            <td class="text-left">{{ itens }}</td>
-            <td class="text-left"></td>
-            <td class="text-left"></td>
-            <td class="text-left">
-            <td>
-            <td>
-
+            <td class="text-left">{{ item.nome }}</td>
           </td>              
         </tr>
-      
+        {% endfor %}  
     </tbody>
 </table>
 {{ lista }}
+{{ total }}
 {% endblock%}
 
