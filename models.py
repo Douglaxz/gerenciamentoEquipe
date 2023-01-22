@@ -76,8 +76,37 @@ class tb_periodofuncionario(db.Model):
     def __repr__(self):
         return '<Name %r>' % self.name    
     
-#class resultadoBusca:
-#    def __init__(self, nome, situacao, 1, 2, 3 ,4 , 5, 6 , 7, 8, 9, 10, 11, 12, 13 , 14 , 15, 16 , 17, 18, 19, 20, 21, 22, 23 ,24 , 25, 26 , 27, 28, 29, 30, 31):
-#        self.nome = nome
-#        self.situacao = situacao
-#        self.1 = 1
+class resultadoBusca:
+    def __init__(self, nome, situacao, d1, d2, d3 ,d4 , d5, d6 , d7, d8, d9, d10, d11, d12, d13 , d14 , d15, d16 , d17, d18, d19, d20, d21, d22, d23 ,d24 , d25, d26 , d27, d28, d29, d30, d31):
+        self.nome = nome
+        self.situacao = situacao
+        self.d1 = d1
+        self.d2 = d2
+        self.d3 = d3
+        self.d4 = d4
+        self.d5 = d5
+        self.d6 = d6
+        self.d7 = d7
+        self.d8 = d8        
+        self.d9 = d9
+        self.d10 = d10
+        self.d11 = d11
+        self.d12 = d12
+        self.d13 = d13
+        self.d14 = d14
+        self.d15 = d15
+        self.d16 = d16
+        self.d17 = d17
+        self.d18 = d18        
+        self.d19 = d19
+        self.d20 = d20     
+        self.d21 = d21
+        self.d22 = d22
+        self.d23 = d23
+        self.d24 = d24
+        self.d25 = d25
+        self.d26 = d26
+        self.d27 = d27
+        self.d28 = d28        
+        self.d29 = d29
+        self.d30 = d30           
