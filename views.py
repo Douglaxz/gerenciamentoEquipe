@@ -1,4 +1,5 @@
 # importação de dependencias
+from datetime import datetime
 from flask import Flask, render_template, request, redirect, session, flash, url_for, send_from_directory
 from gerenciador import app, db
 from models import tb_usuarios, \
@@ -8,7 +9,8 @@ from models import tb_usuarios, \
     tb_tipolancamento, \
     tb_beneficiousuario,\
     tb_periodos,\
-    tb_periodofuncionario
+    tb_periodofuncionario,\
+    resultadoBuscaPeriodo
 from helpers import recupera_imagem,deleta_arquivos, \
     FormularioPeriodoEdicao, \
     FormularioPeriodoVisualizar, \
@@ -28,6 +30,8 @@ from helpers import recupera_imagem,deleta_arquivos, \
     FormularioLancamentoVisualizar,\
     FormularioLancamentoEdicao,\
     FormularioPesquisaPeriodo
+    
+
 import time
 from datetime import date, timedelta
 
@@ -821,7 +825,7 @@ def relatorioPeriodo():
 # rota index para mostrar os usuários
 @app.route('/relatorioPeriodoResultado/', methods = ['GET', 'POST'])
 def relatorioPeriodoResultado():
-    page = request.args.get('page', 1, type=int)
+    #page = request.args.get('page', 1, type=int)
     periodo = request.form['periodo']
     periodoescolhido = tb_periodos\
                         .query.filter_by(cod_periodo=periodo).first()
@@ -833,22 +837,27 @@ def relatorioPeriodoResultado():
     .join(tb_tipolancamento, tb_tipolancamento.cod_tipolancamento==tb_periodofuncionario.cod_tipolancamento)\
     .add_columns(tb_usuarios.nome_usuario, tb_periodofuncionario.data_periodoFuncionario, tb_tipolancamento.sigla_tipolancamento, tb_tipolancamento.desc_tipolancamento)\
     .order_by(tb_usuarios.nome_usuario)\
-    .paginate(page=page, per_page=5, error_out=False)
+    #.paginate(page=page, per_page=5, error_out=False)
 
     lista = []
     tempnome = ""
-    for resultado in resultadobusca:
+    temp = ""
+
+    for resultado in resultadobusca:   
         if tempnome != resultado.nome_usuario:
-            temp = resultado.nome_usuario
-            temp = temp + "," + resultado.sigla_tipolancamento
-        else:
-            temp = temp + "," + resultado.sigla_tipolancamento
-        tempnome = resultado.nome_usuario
-    
-    return tempnome
+            if temp != "":
+                lista.append(temp)
+                temp = ""      
+            temp = temp + "'"
+            temp = temp + "nome:"
+            temp = temp + "'"
+            temp = temp + resultado.nome_usuario
+            temp = temp + "'"     
+        tempnome = resultado.nome_usuario           
+
+
+ 
         
-
-
-    #        tempnome = resultado.nome
-
-    return render_template('relatorioPeriodoResultado.html', titulo='Relatório por período',resultadobusca=resultadobusca, inicio=periodoescolhido.inicio_periodo, final=periodoescolhido.final_periodo)
+    
+    
+    return render_template('relatorioPeriodoResultado.html', titulo='Relatório por período',lista=lista, inicio=periodoescolhido.inicio_periodo, final=periodoescolhido.final_periodo)

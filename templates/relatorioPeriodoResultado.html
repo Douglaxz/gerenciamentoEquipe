@@ -13,9 +13,9 @@
         </tr>
     </thead>
     <tbody>
-      {% for resultado in resultadobusca.items %}
+      
         <tr>
-            <td class="text-left">{{ resultado.nome_usuario }}</td>
+            <td class="text-left">{{ itens }}</td>
             <td class="text-left"></td>
             <td class="text-left"></td>
             <td class="text-left">
@@ -24,8 +24,9 @@
 
           </td>              
         </tr>
-      {% endfor %}
+      
     </tbody>
 </table>
+{{ lista }}
 {% endblock%}
 
